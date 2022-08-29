@@ -14,10 +14,14 @@ export type DatePanelProps<DateType> = {
   active?: boolean;
   dateRender?: DateRender<DateType>;
 
+  id?: string;
+  fieldid?: string;
+
   // Used for week panel
   panelName?: string;
   keyboardConfig?: KeyboardConfig;
-} & PanelSharedProps<DateType> & DateBodyPassProps<DateType>;
+} & PanelSharedProps<DateType> &
+  DateBodyPassProps<DateType>;
 
 function DatePanel<DateType>(props: DatePanelProps<DateType>) {
   const {
@@ -29,6 +33,8 @@ function DatePanel<DateType>(props: DatePanelProps<DateType>) {
     generateConfig,
     value,
     viewDate,
+    id,
+    fieldid,
     onViewDateChange,
     onPanelChange,
     onSelect,
@@ -37,18 +43,18 @@ function DatePanel<DateType>(props: DatePanelProps<DateType>) {
 
   // ======================= Keyboard =======================
   operationRef.current = {
-    onKeyDown: event =>
+    onKeyDown: (event) =>
       createKeyDownHandler(event, {
-        onLeftRight: diff => {
+        onLeftRight: (diff) => {
           onSelect(generateConfig.addDate(value || viewDate, diff), 'key');
         },
-        onCtrlLeftRight: diff => {
+        onCtrlLeftRight: (diff) => {
           onSelect(generateConfig.addYear(value || viewDate, diff), 'key');
         },
-        onUpDown: diff => {
+        onUpDown: (diff) => {
           onSelect(generateConfig.addDate(value || viewDate, diff * WEEK_DAY_COUNT), 'key');
         },
-        onPageUpDown: diff => {
+        onPageUpDown: (diff) => {
           onSelect(generateConfig.addMonth(value || viewDate, diff), 'key');
         },
         ...keyboardConfig,
@@ -69,6 +75,8 @@ function DatePanel<DateType>(props: DatePanelProps<DateType>) {
 
   return (
     <div
+      id={id ? id + '_panel' : ''}
+      fieldid={fieldid ? fieldid + '_panel' : ''}
       className={classNames(panelPrefixCls, {
         [`${panelPrefixCls}-active`]: active,
       })}
@@ -100,7 +108,7 @@ function DatePanel<DateType>(props: DatePanelProps<DateType>) {
       />
       <DateBody
         {...props}
-        onSelect={date => onSelect(date, 'mouse')}
+        onSelect={(date) => onSelect(date, 'mouse')}
         prefixCls={prefixCls}
         value={value}
         viewDate={viewDate}

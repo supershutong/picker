@@ -1,8 +1,11 @@
+import classNames from 'classnames';
 import * as React from 'react';
 import type { Components, RangeList, Locale } from '../interface';
 
 export type RangesProps = {
   prefixCls: string;
+  fieldid?: string;
+  activePresetLabel?: string;
   rangeList?: RangeList;
   components?: Components;
   needConfirmButton: boolean;
@@ -15,6 +18,8 @@ export type RangesProps = {
 
 export default function getRanges({
   prefixCls,
+  fieldid,
+  activePresetLabel,
   rangeList = [],
   components = {},
   needConfirmButton,
@@ -33,7 +38,13 @@ export default function getRanges({
     presetNode = (
       <>
         {rangeList.map(({ label, onClick, onMouseEnter, onMouseLeave }) => (
-          <li key={label} className={`${prefixCls}-preset`}>
+          <li
+            fieldid={fieldid && ''.concat(fieldid, '-', label)}
+            key={label}
+            className={classNames(`${prefixCls}-preset`, {
+              [`${prefixCls}-preset-active`]: activePresetLabel === label,
+            })}
+          >
             <Item onClick={onClick} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
               {label}
             </Item>
@@ -48,7 +59,7 @@ export default function getRanges({
 
     if (onNow && !presetNode && showNow !== false) {
       presetNode = (
-        <li className={`${prefixCls}-now`}>
+        <li className={`${prefixCls}-now`} fieldid={fieldid && ''.concat(fieldid, '-now')}>
           <a className={`${prefixCls}-now-btn`} onClick={onNow}>
             {locale.now}
           </a>
@@ -57,7 +68,7 @@ export default function getRanges({
     }
 
     okNode = needConfirmButton && (
-      <li className={`${prefixCls}-ok`}>
+      <li className={`${prefixCls}-ok`} fieldid={fieldid && ''.concat(fieldid, '-ok')}>
         <Button disabled={okDisabled} onClick={onOk}>
           {locale.ok}
         </Button>
@@ -70,7 +81,7 @@ export default function getRanges({
   }
 
   return (
-    <ul className={`${prefixCls}-ranges`}>
+    <ul className={`${prefixCls}-ranges`} fieldid={fieldid && ''.concat(fieldid, '-ranges')}>
       {presetNode}
       {okNode}
     </ul>

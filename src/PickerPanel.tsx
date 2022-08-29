@@ -42,6 +42,7 @@ import { getLowerBoundTime, setDateTime, setTime } from './utils/timeUtil';
 export type PickerPanelSharedProps<DateType> = {
   prefixCls?: string;
   className?: string;
+  fieldid?: string;
   style?: React.CSSProperties;
   /** @deprecated Will be removed in next big version. Please use `mode` instead */
   mode?: PanelMode;
@@ -121,6 +122,7 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
   const {
     prefixCls = 'rc-picker',
     className,
+    fieldid,
     style,
     locale,
     generateConfig,
@@ -493,6 +495,7 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
     extraFooter = getExtraFooter(prefixCls, mergedMode, renderExtraFooter);
     rangesNode = getRanges({
       prefixCls,
+      fieldid,
       components,
       needConfirmButton,
       okDisabled: !mergedValue || (disabledDate && disabledDate(mergedValue)),

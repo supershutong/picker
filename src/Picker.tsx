@@ -55,6 +55,7 @@ export type PickerSharedProps<DateType> = {
   /** Make input readOnly to avoid popup keyboard in mobile */
   inputReadOnly?: boolean;
   id?: string;
+  fieldid?: string;
 
   // Value
   format?: string | CustomFormat<DateType> | (string | CustomFormat<DateType>)[];
@@ -133,6 +134,7 @@ function InnerPicker<DateType>(props: PickerProps<DateType>) {
   const {
     prefixCls = 'rc-picker',
     id,
+    fieldid,
     tabIndex,
     style,
     className,
@@ -398,6 +400,7 @@ function InnerPicker<DateType>(props: PickerProps<DateType>) {
     <PickerPanel<DateType>
       {...panelProps}
       generateConfig={generateConfig}
+      fieldid={fieldid}
       className={classNames({
         [`${prefixCls}-panel-focused`]: !typing,
       })}
@@ -424,7 +427,17 @@ function InnerPicker<DateType>(props: PickerProps<DateType>) {
   const panel = (
     <div
       className={`${prefixCls}-panel-container`}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+      onMouseEnter={(e) => {
+        e.stopPropagation();
+      }}
+      onMouseLeave={(e) => {
+        e.stopPropagation();
+      }}
       onMouseDown={(e) => {
+        e.stopPropagation();
         e.preventDefault();
       }}
     >
@@ -529,6 +542,7 @@ function InnerPicker<DateType>(props: PickerProps<DateType>) {
       >
         <div
           ref={containerRef}
+          fieldid={fieldid}
           className={classNames(prefixCls, className, {
             [`${prefixCls}-disabled`]: disabled,
             [`${prefixCls}-focused`]: focused,

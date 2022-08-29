@@ -81,6 +81,7 @@ export type RangeDateRender<DateType> = (
 
 export type RangePickerSharedProps<DateType> = {
   id?: string;
+  fieldid?: string;
   value?: RangeValue<DateType>;
   defaultValue?: RangeValue<DateType>;
   defaultPickerValue?: [DateType, DateType];
@@ -94,7 +95,7 @@ export type RangePickerSharedProps<DateType> = {
   separator?: React.ReactNode;
   allowEmpty?: [boolean, boolean];
   mode?: [PanelMode, PanelMode];
-  onChange?: (values: RangeValue<DateType>, formatString: [string, string]) => void;
+  onChange?: (values: RangeValue<DateType>, formatString: [string, string], label?: string) => void;
   onCalendarChange?: (
     values: RangeValue<DateType>,
     formatString: [string, string],
@@ -109,6 +110,8 @@ export type RangePickerSharedProps<DateType> = {
   onMouseLeave?: React.MouseEventHandler<HTMLDivElement>;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
   onOk?: (dates: RangeValue<DateType>) => void;
+  onPresetChange?: (label: string, values: RangeValue<DateType>) => void;
+  activePresetLabel?: string;
   direction?: 'ltr' | 'rtl';
   autoComplete?: string;
   /** @private Internal control of active picker. Do not use since it's private usage */
@@ -172,6 +175,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
   const {
     prefixCls = 'rc-picker',
     id,
+    fieldid,
     style,
     className,
     popupStyle,
@@ -220,9 +224,11 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     onClick,
     onOk,
     onKeyDown,
+    onPresetChange,
     components,
     order,
     direction,
+    activePresetLabel,
     activePickerIndex,
     autoComplete = 'off',
   } = props as MergedRangePickerProps<DateType>;
@@ -401,7 +407,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     }, 0);
   }
 
-  function triggerChange(newValue: RangeValue<DateType>, sourceIndex: 0 | 1) {
+  function triggerChange(newValue: RangeValue<DateType>, sourceIndex: 0 | 1, label?: string) {
     let values = newValue;
     let startValue = getValue(values, 0);
     let endValue = getValue(values, 1);
@@ -470,7 +476,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
         (!isEqual(generateConfig, getValue(mergedValue, 0), startValue) ||
           !isEqual(generateConfig, getValue(mergedValue, 1), endValue))
       ) {
-        onChange(values, [startStr, endStr]);
+        onChange(values, [startStr, endStr], label || '');
       }
     }
 
@@ -772,8 +778,10 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
 
     return {
       label,
+      activePresetLabel,
       onClick: () => {
-        triggerChange(newValues, null);
+        onPresetChange(label, newValues);
+        triggerChange(newValues, null, label);
         triggerOpen(false, mergedActivePickerIndex);
       },
       onMouseEnter: () => {
@@ -831,6 +839,13 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
         <PickerPanel<DateType>
           {...(props as any)}
           {...panelProps}
+          fieldid={
+            fieldid && panelPosition
+              ? fieldid + '_' + panelPosition
+              : panelPosition === false
+              ? fieldid
+              : undefined
+          }
           dateRender={panelDateRender}
           showTime={panelShowTime}
           mode={mergedModes[mergedActivePickerIndex]}
@@ -924,6 +939,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
 
     const rangesNode = getRanges({
       prefixCls,
+      fieldid,
       components,
       needConfirmButton,
       okDisabled:
@@ -931,6 +947,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
         (disabledDate && disabledDate(selectedValue[mergedActivePickerIndex])),
       locale,
       rangeList,
+      activePresetLabel,
       onOk: () => {
         if (getValue(selectedValue, mergedActivePickerIndex)) {
           // triggerChangeOld(selectedValue);
@@ -1124,6 +1141,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       >
         <div
           ref={containerRef}
+          fieldid={fieldid}
           className={classNames(prefixCls, `${prefixCls}-range`, className, {
             [`${prefixCls}-disabled`]: mergedDisabled[0] && mergedDisabled[1],
             [`${prefixCls}-focused`]: mergedActivePickerIndex === 0 ? startFocused : endFocused,

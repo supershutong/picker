@@ -542,6 +542,7 @@ function InnerPicker<DateType>(props: PickerProps<DateType>) {
       >
         <div
           ref={containerRef}
+          // @ts-ignore
           fieldid={fieldid}
           className={classNames(prefixCls, className, {
             [`${prefixCls}-disabled`]: disabled,

@@ -87,6 +87,7 @@ function TimePanel<DateType>(props: TimePanelProps<DateType>) {
 
   return (
     <div
+      // @ts-ignore
       fieldid={fieldid && `${fieldid}-time-panel`}
       className={classNames(panelPrefixCls, {
         [`${panelPrefixCls}-active`]: active,

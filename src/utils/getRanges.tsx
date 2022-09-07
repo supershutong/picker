@@ -39,6 +39,7 @@ export default function getRanges({
       <>
         {rangeList.map(({ label, onClick, onMouseEnter, onMouseLeave }) => (
           <li
+            // @ts-ignore
             fieldid={fieldid && ''.concat(fieldid, '-', label)}
             key={label}
             className={classNames(`${prefixCls}-preset`, {
@@ -59,7 +60,11 @@ export default function getRanges({
 
     if (onNow && !presetNode && showNow !== false) {
       presetNode = (
-        <li className={`${prefixCls}-now`} fieldid={fieldid && ''.concat(fieldid, '-now')}>
+        <li
+          className={`${prefixCls}-now`}
+          // @ts-ignore
+          fieldid={fieldid && ''.concat(fieldid, '-now')}
+        >
           <a className={`${prefixCls}-now-btn`} onClick={onNow}>
             {locale.now}
           </a>
@@ -68,7 +73,11 @@ export default function getRanges({
     }
 
     okNode = needConfirmButton && (
-      <li className={`${prefixCls}-ok`} fieldid={fieldid && ''.concat(fieldid, '-ok')}>
+      <li
+        className={`${prefixCls}-ok`}
+        // @ts-ignore
+        fieldid={fieldid && ''.concat(fieldid, '-ok')}
+      >
         <Button disabled={okDisabled} onClick={onOk}>
           {locale.ok}
         </Button>
@@ -81,7 +90,11 @@ export default function getRanges({
   }
 
   return (
-    <ul className={`${prefixCls}-ranges`} fieldid={fieldid && ''.concat(fieldid, '-ranges')}>
+    <ul
+      className={`${prefixCls}-ranges`}
+      // @ts-ignore
+      fieldid={fieldid && ''.concat(fieldid, '-ranges')}
+    >
       {presetNode}
       {okNode}
     </ul>

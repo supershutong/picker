@@ -546,7 +546,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
 
     const disabledFunc = index === 0 ? disabledStartDate : disabledEndDate;
 
-    if ((inputDate && !disabledFunc(inputDate)) || (newText === '')) {
+    if ((inputDate && !disabledFunc(inputDate)) || newText === '') {
       setSelectedValue(updateValues(selectedValue, inputDate, index));
       setViewDate(inputDate, index);
     }
@@ -1141,6 +1141,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       >
         <div
           ref={containerRef}
+          // @ts-ignore
           fieldid={fieldid}
           className={classNames(prefixCls, `${prefixCls}-range`, className, {
             [`${prefixCls}-disabled`]: mergedDisabled[0] && mergedDisabled[1],

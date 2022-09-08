@@ -280,15 +280,6 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       picker === 'time' && !order ? values : reorderValues(values, generateConfig),
   });
 
-  // =========================== View Date ===========================
-  // Config view panel
-  const [getViewDate, setViewDate] = useRangeViewDates({
-    values: mergedValue,
-    picker,
-    defaultDates: defaultPickerValue,
-    generateConfig,
-  });
-
   // ========================= Select Values =========================
   const [selectedValue, setSelectedValue] = useMergedState(mergedValue, {
     postState: (values) => {
@@ -306,6 +297,15 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       }
       return postValues;
     },
+  });
+
+  // =========================== View Date ===========================
+  // Config view panel
+  const [getViewDate, setViewDate] = useRangeViewDates({
+    values: selectedValue || mergedValue,
+    picker,
+    defaultDates: defaultPickerValue,
+    generateConfig,
   });
 
   // ============================= Modes =============================

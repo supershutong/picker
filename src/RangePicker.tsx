@@ -417,10 +417,14 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       if (
         // WeekPicker only compare week
         (picker === 'week' && !isSameWeek(generateConfig, locale.locale, startValue, endValue)) ||
-        // QuotaPicker only compare week
+        // HalfYearPicker only compare halfYear
+        (picker === 'halfYear' &&
+          !isSameQuarter(generateConfig, startValue, endValue, 'halfYear')) ||
+        // QuotaPicker only compare quarter
         (picker === 'quarter' && !isSameQuarter(generateConfig, startValue, endValue)) ||
         // Other non-TimePicker compare date
         (picker !== 'week' &&
+          picker !== 'halfYear' &&
           picker !== 'quarter' &&
           picker !== 'time' &&
           !isSameDate(generateConfig, startValue, endValue))

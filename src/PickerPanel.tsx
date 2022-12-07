@@ -17,6 +17,7 @@ import DatePanel from './panels/DatePanel';
 import WeekPanel from './panels/WeekPanel';
 import MonthPanel from './panels/MonthPanel';
 import QuarterPanel from './panels/QuarterPanel';
+import HalfYearPanel from './panels/HalfYearPanel';
 import YearPanel from './panels/YearPanel';
 import DecadePanel from './panels/DecadePanel';
 import type { GenerateConfig } from './generate';
@@ -408,6 +409,18 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
     case 'quarter':
       panelNode = (
         <QuarterPanel<DateType>
+          {...pickerProps}
+          onSelect={(date, type) => {
+            setViewDate(date);
+            triggerSelect(date, type);
+          }}
+        />
+      );
+      break;
+
+    case 'halfYear':
+      panelNode = (
+        <HalfYearPanel<DateType>
           {...pickerProps}
           onSelect={(date, type) => {
             setViewDate(date);

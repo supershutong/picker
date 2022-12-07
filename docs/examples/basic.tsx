@@ -34,6 +34,21 @@ export default () => {
     if (e.keyCode === 13) preventDefault();
   };
 
+  const picker = 'halfYear',
+    lang = 'en';
+  const format = (date: Moment, hasYear: boolean = true): string => {
+    if (picker === 'halfYear' && moment.isMoment(date)) {
+      const year = hasYear ? date.year() + ' ' : '';
+      if (lang === 'zh-cn') {
+        return date.month() >= 0 && date.month() <= 5 ? `${year}上半年` : `${year}下半年`;
+      } else {
+        return date.month() >= 0 && date.month() <= 5
+          ? `${year}${year ? 'FH' : 'First Half'}`
+          : `${year}${year ? 'SH' : 'Second Half'}`;
+      }
+    }
+  };
+
   return (
     <div>
       <h1>Value: {value ? value.format('YYYY-MM-DD HH:mm:ss') : 'null'}</h1>
@@ -44,6 +59,20 @@ export default () => {
           <Picker<Moment> {...sharedProps} locale={zhCN} />
           <Picker<Moment> {...sharedProps} locale={enUS} />
         </div>
+
+        <div style={{ margin: '0 8px' }}>
+          <h3>halfYear</h3>
+          <Picker<Moment>
+            {...sharedProps}
+            picker="halfYear"
+            generateConfig={momentGenerateConfig}
+            locale={Object.assign({}, enUS, {
+              halfYearFormat: (date: Moment) => format(date, false),
+            })}
+            format={(date) => format(date)}
+          />
+        </div>
+
         <div style={{ margin: '0 8px' }}>
           <h3>Uncontrolled</h3>
           <Picker<Moment>
@@ -65,7 +94,7 @@ export default () => {
               defaultValue: moment('11:28:39', 'HH:mm:ss'),
             }}
             showToday
-            disabledTime={date => {
+            disabledTime={(date) => {
               if (date && date.isSame(defaultValue, 'date')) {
                 return {
                   disabledHours: () => [1, 3, 5, 7, 9, 11],

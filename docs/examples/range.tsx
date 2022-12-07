@@ -7,8 +7,8 @@ import zhCN from '../../src/locale/zh_CN';
 import '../../assets/index.less';
 import './common.less';
 
-const defaultStartValue = moment('2019-09-03 05:02:03');
-const defaultEndValue = moment('2019-11-28 01:02:03');
+const defaultStartValue = moment('2019-02-03 05:02:03');
+const defaultEndValue = moment('2034-11-28 01:02:03');
 
 function formatDate(date: Moment | null) {
   return date ? date.format('YYYY-MM-DD HH:mm:ss') : 'null';
@@ -44,6 +44,21 @@ export default () => {
   const now = momentGenerateConfig.getNow();
   const disabledDate = (current: Moment) => {
     return current.diff(now, 'days') > 1 || current.diff(now, 'days') < -1;
+  };
+
+  const picker = 'halfYear',
+    lang = 'zh-cn';
+  const format = (date: Moment, hasYear: boolean = true): string => {
+    if (picker === 'halfYear' && moment.isMoment(date)) {
+      const year = hasYear ? date.year() + ' ' : '';
+      if (lang === 'zh-cn') {
+        return date.month() >= 0 && date.month() <= 5 ? `${year}上半年` : `${year}下半年`;
+      } else {
+        return date.month() >= 0 && date.month() <= 5
+          ? `${year}${year ? 'FH' : 'First Half'}`
+          : `${year}${year ? 'SH' : 'Second Half'}`;
+      }
+    }
   };
 
   return (
@@ -94,6 +109,18 @@ export default () => {
             allowClear
             picker="time"
             style={{ width: 280 }}
+          />
+        </div>
+
+        <div style={{ margin: '0 8px' }}>
+          <h3>HalfYear</h3>
+          <RangePicker<Moment>
+            {...sharedProps}
+            picker="halfYear"
+            locale={Object.assign({}, zhCN, {
+              halfYearFormat: (date: Moment) => format(date, false),
+            })}
+            format={(date) => format(date)}
           />
         </div>
 

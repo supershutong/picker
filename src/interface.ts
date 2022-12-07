@@ -1,3 +1,4 @@
+import type { Moment } from 'moment'
 import type { GenerateConfig } from './generate';
 
 export type Locale = {
@@ -9,6 +10,7 @@ export type Locale = {
   yearFormat: string;
   monthFormat?: string;
   quarterFormat?: string;
+  halfYearFormat?: (date: Moment, hasYear?: boolean ) => string;
 
   today: string;
   now: string;
@@ -40,7 +42,15 @@ export type Locale = {
   shortMonths?: string[];
 };
 
-export type PanelMode = 'time' | 'date' | 'week' | 'month' | 'quarter' | 'year' | 'decade';
+export type PanelMode =
+  | 'time'
+  | 'date'
+  | 'week'
+  | 'month'
+  | 'quarter'
+  | 'halfYear'
+  | 'year'
+  | 'decade';
 
 export type PickerMode = Exclude<PanelMode, 'datetime' | 'decade'>;
 

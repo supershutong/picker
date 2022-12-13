@@ -1,5 +1,8 @@
 import * as React from 'react';
 import PanelContext from '../PanelContext';
+import type {
+  Locale,
+} from '../interface';
 
 const HIDDEN_STYLE: React.CSSProperties = {
   visibility: 'hidden',
@@ -22,6 +25,7 @@ export type HeaderProps = {
   onSuperPrev?: () => void;
   /** Next multiple steps */
   onSuperNext?: () => void;
+  locale?: Locale;
 
   children?: React.ReactNode;
 };
@@ -36,6 +40,7 @@ function Header({
   onSuperNext,
   onPrev,
   onNext,
+  locale,
   children,
 }: HeaderProps) {
   const { hideNextBtn, hidePrevBtn } = React.useContext(PanelContext);
@@ -49,6 +54,7 @@ function Header({
           tabIndex={-1}
           className={`${prefixCls}-super-prev-btn`}
           style={hidePrevBtn ? HIDDEN_STYLE : {}}
+          title={locale.previousYear}
         >
           {superPrevIcon}
         </button>
@@ -60,6 +66,7 @@ function Header({
           tabIndex={-1}
           className={`${prefixCls}-prev-btn`}
           style={hidePrevBtn ? HIDDEN_STYLE : {}}
+          title={locale.previousMonth}
         >
           {prevIcon}
         </button>
@@ -72,6 +79,7 @@ function Header({
           tabIndex={-1}
           className={`${prefixCls}-next-btn`}
           style={hideNextBtn ? HIDDEN_STYLE : {}}
+          title={locale.nextMonth}
         >
           {nextIcon}
         </button>
@@ -83,6 +91,7 @@ function Header({
           tabIndex={-1}
           className={`${prefixCls}-super-next-btn`}
           style={hideNextBtn ? HIDDEN_STYLE : {}}
+          title={locale.nextYear}
         >
           {superNextIcon}
         </button>

@@ -65,7 +65,7 @@ export default function getRanges({
           // @ts-ignore
           fieldid={fieldid && ''.concat(fieldid, '-now')}
         >
-          <a className={`${prefixCls}-now-btn`} onClick={onNow}>
+          <a className={`${prefixCls}-now-btn`} onClick={onNow} title={locale.now}>
             {locale.now}
           </a>
         </li>

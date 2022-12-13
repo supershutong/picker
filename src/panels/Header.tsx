@@ -26,6 +26,8 @@ export type HeaderProps = {
   /** Next multiple steps */
   onSuperNext?: () => void;
   locale?: Locale;
+  sourceMode?: string;
+  sourceModeCopy?: string;
 
   children?: React.ReactNode;
 };
@@ -42,8 +44,11 @@ function Header({
   onNext,
   locale,
   children,
+  sourceMode,
+  sourceModeCopy
 }: HeaderProps) {
   const { hideNextBtn, hidePrevBtn } = React.useContext(PanelContext);
+  const sourceModeCopyVar = sourceModeCopy ? sourceModeCopy : sourceMode
 
   return (
     <div className={prefixCls}>
@@ -54,7 +59,7 @@ function Header({
           tabIndex={-1}
           className={`${prefixCls}-super-prev-btn`}
           style={hidePrevBtn ? HIDDEN_STYLE : {}}
-          title={locale.previousYear}
+          title={sourceModeCopyVar === 'month' ? locale.previousDecade : sourceModeCopyVar === 'year' ? locale.previousCentury : locale.previousYear}
         >
           {superPrevIcon}
         </button>
@@ -91,7 +96,7 @@ function Header({
           tabIndex={-1}
           className={`${prefixCls}-super-next-btn`}
           style={hideNextBtn ? HIDDEN_STYLE : {}}
-          title={locale.nextYear}
+          title={sourceModeCopyVar === 'month' ? locale.nextDecade : sourceModeCopyVar === 'year' ? locale.nextCentury : locale.nextYear}
         >
           {superNextIcon}
         </button>

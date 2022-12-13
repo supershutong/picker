@@ -13,6 +13,7 @@ export type YearHeaderProps<DateType> = {
   onPrevDecade: () => void;
   onNextDecade: () => void;
   onDecadeClick: () => void;
+  sourceModeCopy: string;
 };
 
 function YearHeader<DateType>(props: YearHeaderProps<DateType>) {

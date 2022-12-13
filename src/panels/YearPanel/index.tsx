@@ -60,6 +60,13 @@ function YearPanel<DateType>(props: YearPanelProps<DateType>) {
     onPanelChange(null, newDate);
   };
 
+  const [sourceModeCopy, setSourceModeCopy] = React.useState<PanelMode>(sourceMode)
+  React.useEffect(() => {
+    if (sourceMode && (sourceMode === 'date' || sourceMode === 'week' || sourceMode === 'quarter' || sourceMode === 'year' || sourceMode === 'halfYear')) {
+      setSourceModeCopy('month')
+    }
+  }, [sourceMode])
+
   return (
     <div className={panelPrefixCls}>
       <YearHeader
@@ -74,6 +81,7 @@ function YearPanel<DateType>(props: YearPanelProps<DateType>) {
         onDecadeClick={() => {
           onPanelChange('decade', viewDate);
         }}
+        sourceModeCopy={sourceModeCopy}
       />
       <YearBody
         {...props}

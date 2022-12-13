@@ -541,6 +541,7 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
             triggerSelect(now, 'mouse', true);
           }
         }}
+        title={locale.today}
       >
         {locale.today}
       </a>

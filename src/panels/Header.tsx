@@ -25,6 +25,9 @@ export type HeaderProps = {
   onSuperPrev?: () => void;
   /** Next multiple steps */
   onSuperNext?: () => void;
+  /** current date */
+  onCurrent?: () => void;
+  showTodayBtn?: boolean;
   locale?: Locale;
   sourceMode?: string;
   sourceModeCopy?: string;
@@ -42,6 +45,8 @@ function Header({
   onSuperNext,
   onPrev,
   onNext,
+  onCurrent,
+  showTodayBtn,
   locale,
   children,
   sourceMode,
@@ -101,6 +106,15 @@ function Header({
           {superNextIcon}
         </button>
       )}
+      {showTodayBtn && (<button
+          type="button"
+          onClick={onCurrent}
+          tabIndex={-1}
+          className={`${prefixCls}-today-btn`}
+          title={locale.today}
+        >
+          {locale.locale === 'zh-cn' ? '今' : locale.today}
+        </button>)}
     </div>
   );
 }

@@ -27,28 +27,19 @@ function YearPanel<DateType>(props: YearPanelProps<DateType>) {
 
   // ======================= Keyboard =======================
   operationRef.current = {
-    onKeyDown: event =>
+    onKeyDown: (event) =>
       createKeyDownHandler(event, {
-        onLeftRight: diff => {
+        onLeftRight: (diff) => {
           onSelect(generateConfig.addYear(value || viewDate, diff), 'key');
         },
-        onCtrlLeftRight: diff => {
-          onSelect(
-            generateConfig.addYear(value || viewDate, diff * YEAR_DECADE_COUNT),
-            'key',
-          );
+        onCtrlLeftRight: (diff) => {
+          onSelect(generateConfig.addYear(value || viewDate, diff * YEAR_DECADE_COUNT), 'key');
         },
-        onUpDown: diff => {
-          onSelect(
-            generateConfig.addYear(value || viewDate, diff * YEAR_COL_COUNT),
-            'key',
-          );
+        onUpDown: (diff) => {
+          onSelect(generateConfig.addYear(value || viewDate, diff * YEAR_COL_COUNT), 'key');
         },
         onEnter: () => {
-          onPanelChange(
-            sourceMode === 'date' ? 'date' : 'month',
-            value || viewDate,
-          );
+          onPanelChange(sourceMode === 'date' ? 'date' : 'month', value || viewDate);
         },
       }),
   };
@@ -60,12 +51,20 @@ function YearPanel<DateType>(props: YearPanelProps<DateType>) {
     onPanelChange(null, newDate);
   };
 
-  const [sourceModeCopy, setSourceModeCopy] = React.useState<PanelMode>(sourceMode)
+  const [sourceModeCopy, setSourceModeCopy] = React.useState<PanelMode>(sourceMode);
   React.useEffect(() => {
-    if (sourceMode && (sourceMode === 'date' || sourceMode === 'week' || sourceMode === 'quarter' || sourceMode === 'year' || sourceMode === 'halfYear')) {
-      setSourceModeCopy('month')
+    if (
+      sourceMode &&
+      (sourceMode === 'date' ||
+        sourceMode === 'week' ||
+        sourceMode === 'quarter' ||
+        sourceMode === 'year' ||
+        sourceMode === 'halfYear' ||
+        sourceMode === 'month')
+    ) {
+      setSourceModeCopy('decade');
     }
-  }, [sourceMode])
+  }, [sourceMode]);
 
   return (
     <div className={panelPrefixCls}>
@@ -86,7 +85,7 @@ function YearPanel<DateType>(props: YearPanelProps<DateType>) {
       <YearBody
         {...props}
         prefixCls={prefixCls}
-        onSelect={date => {
+        onSelect={(date) => {
           onPanelChange(sourceMode === 'date' ? 'date' : 'month', date);
           onSelect(date, 'mouse');
         }}

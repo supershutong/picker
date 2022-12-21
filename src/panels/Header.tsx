@@ -1,8 +1,6 @@
 import * as React from 'react';
 import PanelContext from '../PanelContext';
-import type {
-  Locale,
-} from '../interface';
+import type { Locale } from '../interface';
 
 const HIDDEN_STYLE: React.CSSProperties = {
   visibility: 'hidden',
@@ -45,10 +43,10 @@ function Header({
   locale,
   children,
   sourceMode,
-  sourceModeCopy
+  sourceModeCopy,
 }: HeaderProps) {
   const { hideNextBtn, hidePrevBtn } = React.useContext(PanelContext);
-  const sourceModeCopyVar = sourceModeCopy ? sourceModeCopy : sourceMode
+  const sourceModeCopyVar = sourceModeCopy ? sourceModeCopy : sourceMode;
 
   return (
     <div className={prefixCls}>
@@ -59,7 +57,13 @@ function Header({
           tabIndex={-1}
           className={`${prefixCls}-super-prev-btn`}
           style={hidePrevBtn ? HIDDEN_STYLE : {}}
-          title={sourceModeCopyVar === 'month' ? locale.previousDecade : sourceModeCopyVar === 'year' ? locale.previousCentury : locale.previousYear}
+          title={
+            sourceModeCopyVar === 'decade'
+              ? locale.previousDecade
+              : sourceModeCopyVar === 'year'
+              ? locale.previousCentury
+              : locale.previousYear
+          }
         >
           {superPrevIcon}
         </button>
@@ -96,7 +100,13 @@ function Header({
           tabIndex={-1}
           className={`${prefixCls}-super-next-btn`}
           style={hideNextBtn ? HIDDEN_STYLE : {}}
-          title={sourceModeCopyVar === 'month' ? locale.nextDecade : sourceModeCopyVar === 'year' ? locale.nextCentury : locale.nextYear}
+          title={
+            sourceModeCopyVar === 'decade'
+              ? locale.nextDecade
+              : sourceModeCopyVar === 'year'
+              ? locale.nextCentury
+              : locale.nextYear
+          }
         >
           {superNextIcon}
         </button>

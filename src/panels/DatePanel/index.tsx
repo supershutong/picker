@@ -38,6 +38,7 @@ function DatePanel<DateType>(props: DatePanelProps<DateType>) {
     onViewDateChange,
     onPanelChange,
     onSelect,
+    sourceMode,
   } = props;
   const panelPrefixCls = `${prefixCls}-${panelName}-panel`;
 
@@ -72,6 +73,13 @@ function DatePanel<DateType>(props: DatePanelProps<DateType>) {
     onViewDateChange(newDate);
     onPanelChange(null, newDate);
   };
+
+  const [sourceModeCopy, setSourceModeCopy] = React.useState<any>(sourceMode);
+  React.useEffect(() => {
+    if (sourceMode && sourceMode === 'year') {
+      setSourceModeCopy('decade1');
+    }
+  }, [sourceMode]);
 
   return (
     <div
@@ -109,6 +117,7 @@ function DatePanel<DateType>(props: DatePanelProps<DateType>) {
         onCurrent={() => {
           onViewDateChange(generateConfig.getNow())
         }}
+        sourceModeCopy={sourceModeCopy}
       />
       <DateBody
         {...props}

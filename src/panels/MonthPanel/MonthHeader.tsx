@@ -14,18 +14,12 @@ export type MonthHeaderProps<DateType> = {
   onPrevYear: () => void;
   onNextYear: () => void;
   onYearClick: () => void;
+  sourceModeCopy: string;
 };
 
 function MonthHeader<DateType>(props: MonthHeaderProps<DateType>) {
-  const {
-    prefixCls,
-    generateConfig,
-    locale,
-    viewDate,
-    onNextYear,
-    onPrevYear,
-    onYearClick,
-  } = props;
+  const { prefixCls, generateConfig, locale, viewDate, onNextYear, onPrevYear, onYearClick } =
+    props;
   const { hideHeader } = React.useContext(PanelContext);
   if (hideHeader) {
     return null;

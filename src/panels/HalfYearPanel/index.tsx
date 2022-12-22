@@ -16,6 +16,7 @@ function HalfYearPanel<DateType>(props: HalfYearPanelProps<DateType>) {
     viewDate,
     onPanelChange,
     onSelect,
+    sourceMode,
   } = props;
 
   const panelPrefixCls = `${prefixCls}-halfYear-panel`;
@@ -43,6 +44,13 @@ function HalfYearPanel<DateType>(props: HalfYearPanelProps<DateType>) {
     onPanelChange(null, newDate);
   };
 
+  const [sourceModeCopy, setSourceModeCopy] = React.useState<any>(sourceMode);
+  React.useEffect(() => {
+    if (sourceMode && sourceMode === 'year') {
+      setSourceModeCopy('decade1');
+    }
+  }, [sourceMode]);
+
   return (
     /* HalfYearHeader is the same with QuarterHeader */
     <div className={panelPrefixCls}>
@@ -58,6 +66,7 @@ function HalfYearPanel<DateType>(props: HalfYearPanelProps<DateType>) {
         onYearClick={() => {
           onPanelChange('year', viewDate);
         }}
+        sourceModeCopy={sourceModeCopy}
       />
       <HalfYearBody<DateType>
         {...props}

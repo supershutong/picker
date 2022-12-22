@@ -1,4 +1,4 @@
-import type { Moment } from 'moment'
+import type { Moment } from 'moment';
 import type { GenerateConfig } from './generate';
 
 export type Locale = {
@@ -10,7 +10,7 @@ export type Locale = {
   yearFormat: string;
   monthFormat?: string;
   quarterFormat?: string;
-  halfYearFormat?: (date: Moment, hasYear?: boolean ) => string;
+  halfYearFormat?: (date: Moment, hasYear?: boolean) => string;
 
   today: string;
   now: string;
@@ -89,6 +89,7 @@ export type PanelSharedProps<DateType> = {
   onSelect: OnSelect<DateType>;
   onViewDateChange: (value: DateType) => void;
   onPanelChange: (mode: PanelMode | null, viewValue: DateType) => void;
+  sourceMode: any;
 };
 
 export type DisabledTimes = {

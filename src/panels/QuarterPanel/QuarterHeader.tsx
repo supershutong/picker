@@ -14,18 +14,12 @@ export type QuarterHeaderProps<DateType> = {
   onPrevYear: () => void;
   onNextYear: () => void;
   onYearClick: () => void;
+  sourceModeCopy: string;
 };
 
 function QuarterHeader<DateType>(props: QuarterHeaderProps<DateType>) {
-  const {
-    prefixCls,
-    generateConfig,
-    locale,
-    viewDate,
-    onNextYear,
-    onPrevYear,
-    onYearClick,
-  } = props;
+  const { prefixCls, generateConfig, locale, viewDate, onNextYear, onPrevYear, onYearClick } =
+    props;
   const { hideHeader } = React.useContext(PanelContext);
   if (hideHeader) {
     return null;

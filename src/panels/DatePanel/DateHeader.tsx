@@ -18,6 +18,7 @@ export type DateHeaderProps<DateType> = {
   onNextMonth: () => void;
   onYearClick: () => void;
   onMonthClick: () => void;
+  sourceModeCopy: string;
 };
 
 function DateHeader<DateType>(props: DateHeaderProps<DateType>) {

@@ -16,21 +16,22 @@ function QuarterPanel<DateType>(props: QuarterPanelProps<DateType>) {
     viewDate,
     onPanelChange,
     onSelect,
+    sourceMode,
   } = props;
 
   const panelPrefixCls = `${prefixCls}-quarter-panel`;
 
   // ======================= Keyboard =======================
   operationRef.current = {
-    onKeyDown: event =>
+    onKeyDown: (event) =>
       createKeyDownHandler(event, {
-        onLeftRight: diff => {
+        onLeftRight: (diff) => {
           onSelect(generateConfig.addMonth(value || viewDate, diff * 3), 'key');
         },
-        onCtrlLeftRight: diff => {
+        onCtrlLeftRight: (diff) => {
           onSelect(generateConfig.addYear(value || viewDate, diff), 'key');
         },
-        onUpDown: diff => {
+        onUpDown: (diff) => {
           onSelect(generateConfig.addYear(value || viewDate, diff), 'key');
         },
       }),
@@ -42,6 +43,13 @@ function QuarterPanel<DateType>(props: QuarterPanelProps<DateType>) {
     onViewDateChange(newDate);
     onPanelChange(null, newDate);
   };
+
+  const [sourceModeCopy, setSourceModeCopy] = React.useState<any>(sourceMode);
+  React.useEffect(() => {
+    if (sourceMode && sourceMode === 'year') {
+      setSourceModeCopy('decade1');
+    }
+  }, [sourceMode]);
 
   return (
     <div className={panelPrefixCls}>
@@ -57,11 +65,12 @@ function QuarterPanel<DateType>(props: QuarterPanelProps<DateType>) {
         onYearClick={() => {
           onPanelChange('year', viewDate);
         }}
+        sourceModeCopy={sourceModeCopy}
       />
       <QuarterBody<DateType>
         {...props}
         prefixCls={prefixCls}
-        onSelect={date => {
+        onSelect={(date) => {
           onSelect(date, 'mouse');
         }}
       />

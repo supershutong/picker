@@ -19,25 +19,23 @@ function MonthPanel<DateType>(props: MonthPanelProps<DateType>) {
     viewDate,
     onPanelChange,
     onSelect,
+    sourceMode,
   } = props;
 
   const panelPrefixCls = `${prefixCls}-month-panel`;
 
   // ======================= Keyboard =======================
   operationRef.current = {
-    onKeyDown: event =>
+    onKeyDown: (event) =>
       createKeyDownHandler(event, {
-        onLeftRight: diff => {
+        onLeftRight: (diff) => {
           onSelect(generateConfig.addMonth(value || viewDate, diff), 'key');
         },
-        onCtrlLeftRight: diff => {
+        onCtrlLeftRight: (diff) => {
           onSelect(generateConfig.addYear(value || viewDate, diff), 'key');
         },
-        onUpDown: diff => {
-          onSelect(
-            generateConfig.addMonth(value || viewDate, diff * MONTH_COL_COUNT),
-            'key',
-          );
+        onUpDown: (diff) => {
+          onSelect(generateConfig.addMonth(value || viewDate, diff * MONTH_COL_COUNT), 'key');
         },
         onEnter: () => {
           onPanelChange('date', value || viewDate);
@@ -51,6 +49,12 @@ function MonthPanel<DateType>(props: MonthPanelProps<DateType>) {
     onViewDateChange(newDate);
     onPanelChange(null, newDate);
   };
+  const [sourceModeCopy, setSourceModeCopy] = React.useState<any>(sourceMode);
+  React.useEffect(() => {
+    if (sourceMode && sourceMode === 'year') {
+      setSourceModeCopy('decade1');
+    }
+  }, [sourceMode]);
 
   return (
     <div className={panelPrefixCls}>
@@ -66,11 +70,12 @@ function MonthPanel<DateType>(props: MonthPanelProps<DateType>) {
         onYearClick={() => {
           onPanelChange('year', viewDate);
         }}
+        sourceModeCopy={sourceModeCopy}
       />
       <MonthBody<DateType>
         {...props}
         prefixCls={prefixCls}
-        onSelect={date => {
+        onSelect={(date) => {
           onSelect(date, 'mouse');
           onPanelChange('date', date);
         }}

@@ -18,7 +18,6 @@ export type DateHeaderProps<DateType> = {
   onNextMonth: () => void;
   onYearClick: () => void;
   onMonthClick: () => void;
-  onCurrent: () => void;
   sourceModeCopy: string;
 };
 
@@ -32,7 +31,6 @@ function DateHeader<DateType>(props: DateHeaderProps<DateType>) {
     onPrevMonth,
     onNextYear,
     onPrevYear,
-    onCurrent,
     onYearClick,
     onMonthClick,
   } = props;
@@ -96,7 +94,6 @@ function DateHeader<DateType>(props: DateHeaderProps<DateType>) {
       onPrev={onPrevMonth}
       onNext={onNextMonth}
       onSuperNext={onNextYear}
-      onCurrent={onCurrent}
     >
       {monthYearNodes}
     </Header>

@@ -865,11 +865,9 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
             }
             return false;
           }}
-          linkedPanels={linkedPanels}
           className={classNames({
             [`${prefixCls}-panel-focused`]:
               mergedActivePickerIndex === 0 ? !startTyping : !endTyping,
-            [`${prefixCls}-panel-unlinked`]: !linkedPanels,
           })}
           value={getValue(selectedValue, mergedActivePickerIndex)}
           locale={locale}
@@ -972,24 +970,18 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       const nextViewDate = getClosingViewDate(viewDate, picker, generateConfig);
       const currentMode = mergedModes[mergedActivePickerIndex];
 
-      const leftDate = getClosingViewDate(getViewDate(0), picker, generateConfig);
-      const rightDate = getClosingViewDate(getViewDate(1), picker, generateConfig);
+      const leftDate = getViewDate(0);
+      const rightDate = getViewDate(1);
 
       const showDoublePanel = currentMode === picker;
       const leftPanel = renderPanel(showDoublePanel ? 'left' : false, {
-        pickerValue:
-          linkedPanels || !showDoublePanel || generateConfig.isAfter(leftDate, viewDate)
-            ? viewDate
-            : leftDate,
+        pickerValue: (linkedPanels || !showDoublePanel) ? viewDate : generateConfig.isAfter(leftDate, viewDate) ? viewDate : leftDate,
         onPickerValueChange: (newViewDate) => {
           setViewDate(newViewDate, mergedActivePickerIndex);
         },
       });
       const rightPanel = renderPanel('right', {
-        pickerValue:
-          linkedPanels || !showDoublePanel || !generateConfig.isAfter(rightDate, nextViewDate)
-            ? nextViewDate
-            : rightDate,
+        pickerValue: (linkedPanels || !showDoublePanel) ? nextViewDate : generateConfig.isAfter(rightDate, nextViewDate) ? rightDate : nextViewDate,
         onPickerValueChange: (newViewDate) => {
           setViewDate(
             getClosingViewDate(newViewDate, picker, generateConfig, -1),

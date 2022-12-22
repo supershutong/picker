@@ -82,7 +82,6 @@ export type RangeDateRender<DateType> = (
 export type RangePickerSharedProps<DateType> = {
   id?: string;
   fieldid?: string;
-  linkedPanels?: boolean;
   value?: RangeValue<DateType>;
   defaultValue?: RangeValue<DateType>;
   defaultPickerValue?: [DateType, DateType];
@@ -197,7 +196,6 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     value,
     defaultValue,
     defaultPickerValue,
-    linkedPanels = true,
     open,
     defaultOpen,
     disabledDate,
@@ -970,18 +968,15 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       const nextViewDate = getClosingViewDate(viewDate, picker, generateConfig);
       const currentMode = mergedModes[mergedActivePickerIndex];
 
-      const leftDate = getViewDate(0);
-      const rightDate = getViewDate(1);
-
       const showDoublePanel = currentMode === picker;
       const leftPanel = renderPanel(showDoublePanel ? 'left' : false, {
-        pickerValue: (linkedPanels || !showDoublePanel) ? viewDate : generateConfig.isAfter(leftDate, viewDate) ? viewDate : leftDate,
+        pickerValue: viewDate,
         onPickerValueChange: (newViewDate) => {
           setViewDate(newViewDate, mergedActivePickerIndex);
         },
       });
       const rightPanel = renderPanel('right', {
-        pickerValue: (linkedPanels || !showDoublePanel) ? nextViewDate : generateConfig.isAfter(rightDate, nextViewDate) ? rightDate : nextViewDate,
+        pickerValue: nextViewDate,
         onPickerValueChange: (newViewDate) => {
           setViewDate(
             getClosingViewDate(newViewDate, picker, generateConfig, -1),

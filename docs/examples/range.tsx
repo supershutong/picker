@@ -113,21 +113,6 @@ export default () => {
         </div>
 
         <div style={{ margin: '0 8px' }}>
-          <h3>左右面板不联动</h3>
-          <RangePicker<Moment>
-            {...sharedProps}
-            value={undefined}
-            locale={zhCN}
-            allowClear
-            ref={rangePickerRef}
-            linkedPanels={false}
-            defaultValue={[moment('1990-09-03'), moment('1989-11-28')]}
-            clearIcon={<span>X</span>}
-            suffixIcon={<span>O</span>}
-          />
-        </div>
-
-        <div style={{ margin: '0 8px' }}>
           <h3>HalfYear</h3>
           <RangePicker<Moment>
             {...sharedProps}

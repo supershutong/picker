@@ -134,6 +134,7 @@ const generateConfig: GenerateConfig<Dayjs> = {
 
   // Compare
   isAfter: (date1, date2) => date1.isAfter(date2),
+  isSame: (date1, date2) => date1.isSame(date2),
   isValidate: (date) => date.isValid(),
 
   locale: {

@@ -114,6 +114,9 @@ function DatePanel<DateType>(props: DatePanelProps<DateType>) {
         onYearClick={() => {
           onPanelChange('year', viewDate);
         }}
+        onCurrent={() => {
+          onViewDateChange(generateConfig.getNow())
+        }}
         sourceModeCopy={sourceModeCopy}
       />
       <DateBody

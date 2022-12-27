@@ -48,6 +48,7 @@ export type PickerPanelSharedProps<DateType> = {
   /** @deprecated Will be removed in next big version. Please use `mode` instead */
   mode?: PanelMode;
   tabIndex?: number;
+  linkedPanels?: boolean;
 
   // Locale
   locale: Locale;
@@ -132,6 +133,7 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
     pickerValue,
     defaultPickerValue,
     disabledDate,
+    linkedPanels,
     mode,
     picker = 'date',
     tabIndex = 0,
@@ -365,6 +367,7 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
     sourceMode,
     onPanelChange: onInternalPanelChange,
     disabledDate,
+    showTodayBtn: !linkedPanels && mode === 'date',
   };
   delete pickerProps.onChange;
   delete pickerProps.onSelect;
@@ -554,8 +557,8 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
         ...panelContext,
         mode: mergedMode,
         hideHeader: 'hideHeader' in props ? hideHeader : panelContext.hideHeader,
-        hidePrevBtn: inRange && panelPosition === 'right',
-        hideNextBtn: inRange && panelPosition === 'left',
+        hidePrevBtn: linkedPanels && inRange && panelPosition === 'right', // 左右面板隔离需求时不隐藏上翻页箭头
+        hideNextBtn: linkedPanels && inRange && panelPosition === 'left', // 左右面板隔离需求时不隐藏下翻页箭头
       }}
     >
       <div

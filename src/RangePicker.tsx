@@ -3,6 +3,7 @@ import { useRef, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import warning from 'rc-util/lib/warning';
 import useMergedState from 'rc-util/lib/hooks/useMergedState';
+import type { Moment } from 'moment';
 import type { DisabledTimes, PanelMode, PickerMode, RangeValue, EventValue } from './interface';
 import type { PickerBaseProps, PickerDateProps, PickerTimeProps, PickerRefConfig } from './Picker';
 import type { SharedTimeProps } from './panels/TimePanel';
@@ -82,6 +83,7 @@ export type RangeDateRender<DateType> = (
 export type RangePickerSharedProps<DateType> = {
   id?: string;
   fieldid?: string;
+  linkedPanels?: boolean;
   value?: RangeValue<DateType>;
   defaultValue?: RangeValue<DateType>;
   defaultPickerValue?: [DateType, DateType];
@@ -196,6 +198,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     value,
     defaultValue,
     defaultPickerValue,
+    linkedPanels = true,
     open,
     defaultOpen,
     disabledDate,
@@ -370,6 +373,11 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
   // ============================ Trigger ============================
   const triggerRef = React.useRef<any>();
 
+  const [leftDate, setLeftDate] = useState(getViewDate(0));
+  const [rightDate, setRightDate] = useState(
+    getClosingViewDate(getViewDate(1), picker, generateConfig),
+  );
+
   function triggerOpen(newOpen: boolean, index: 0 | 1) {
     if (newOpen) {
       clearTimeout(triggerRef.current);
@@ -381,6 +389,8 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       // Open to reset view date
       if (!mergedOpen) {
         setViewDate(null, index);
+        setLeftDate(getViewDate(0))
+        setRightDate(getClosingViewDate(getViewDate(1), picker, generateConfig))
       }
     } else if (mergedActivePickerIndex === index) {
       triggerInnerOpen(newOpen);
@@ -863,9 +873,11 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
             }
             return false;
           }}
+          linkedPanels={linkedPanels}
           className={classNames({
             [`${prefixCls}-panel-focused`]:
               mergedActivePickerIndex === 0 ? !startTyping : !endTyping,
+            [`${prefixCls}-panel-unlinked`]: !linkedPanels,
           })}
           value={getValue(selectedValue, mergedActivePickerIndex)}
           locale={locale}
@@ -968,16 +980,80 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       const nextViewDate = getClosingViewDate(viewDate, picker, generateConfig);
       const currentMode = mergedModes[mergedActivePickerIndex];
 
+      const modeMap: Record<string, moment.unitOfTime.StartOf> = {
+        // 不同mode要格式化为不同面板开始日期
+        date: 'M',
+        week: 'M',
+        month: 'y',
+        quarter: 'y',
+        halfYear: 'y',
+        year: 'y',
+        decade: 'y',
+      };
+
       const showDoublePanel = currentMode === picker;
       const leftPanel = renderPanel(showDoublePanel ? 'left' : false, {
-        pickerValue: viewDate,
+        pickerValue: !linkedPanels ? leftDate : viewDate,
         onPickerValueChange: (newViewDate) => {
+          // 左右面板分离
+          if (!linkedPanels) {
+            if (
+              /** 右翻页 */
+              !generateConfig.isAfter(viewDate, newViewDate) &&
+              generateConfig.isSame(
+                /** 左面板右翻页后等于右面板 */
+                getClosingViewDate(
+                  viewDate as Moment,
+                  picker,
+                  generateConfig as GenerateConfig<Moment>,
+                ).startOf(modeMap[currentMode]) as DateType,
+                (rightDate as Moment)
+                  .clone()
+                  .startOf(
+                    modeMap[currentMode],
+                  ) as DateType /** 左右面板要取月初，避免用户值日期不同导致月份isSame判断错误 */,
+              )
+            ) {
+              // 左面板右翻页，且左面板翻页后等于右面板，则右面板也需要 +1
+              setRightDate(getClosingViewDate(newViewDate, picker, generateConfig));
+            }
+            // 左面板一直可翻页
+            setLeftDate(newViewDate);
+          }
+          // 左右面板关联
           setViewDate(newViewDate, mergedActivePickerIndex);
         },
       });
       const rightPanel = renderPanel('right', {
-        pickerValue: nextViewDate,
+        pickerValue: !linkedPanels ? rightDate : nextViewDate,
         onPickerValueChange: (newViewDate) => {
+          // 左右面板分离
+          if (!linkedPanels) {
+            if (
+              /** 左翻页 */
+              generateConfig.isAfter(nextViewDate, newViewDate) &&
+              generateConfig.isSame(
+                /** 右面板左翻页后等于左面板 */
+                getClosingViewDate(
+                  nextViewDate as Moment,
+                  picker,
+                  generateConfig as GenerateConfig<Moment>,
+                  -1,
+                ).startOf(modeMap[currentMode]) as DateType,
+                (leftDate as Moment)
+                  .clone()
+                  .startOf(
+                    modeMap[currentMode],
+                  ) as DateType /** 左右面板要取月初，避免用户值日期不同导致月份isSame判断错误 */,
+              )
+            ) {
+              // 右面板左翻页，且右面板翻页后等于左面板，则左面板也需要 -1
+              setLeftDate(getClosingViewDate(newViewDate, picker, generateConfig, -1));
+            }
+            // 左面板一直可翻页
+            setRightDate(newViewDate);
+          }
+
           setViewDate(
             getClosingViewDate(newViewDate, picker, generateConfig, -1),
             mergedActivePickerIndex,

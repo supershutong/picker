@@ -85,7 +85,7 @@ function DatePanel<DateType>(props: DatePanelProps<DateType>) {
     <div
       id={id ? id + '_panel' : ''}
       // @ts-ignore
-      fieldid={fieldid ? fieldid + '_panel' : ''}
+      fieldid={fieldid && `${fieldid}_panel`}
       className={classNames(panelPrefixCls, {
         [`${panelPrefixCls}-active`]: active,
       })}

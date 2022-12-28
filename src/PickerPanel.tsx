@@ -545,6 +545,8 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
           }
         }}
         title={locale.today}
+        // @ts-ignore
+        fieldid={fieldid && `${fieldid}_footer_today_btn`}
       >
         {locale.today}
       </a>

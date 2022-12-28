@@ -122,6 +122,8 @@ function Header({
           tabIndex={-1}
           className={`${prefixCls}-today-btn`}
           title={locale.today}
+          // @ts-ignore
+          fieldid={fieldid && `${fieldid}_header_today_btn`}
         >
           {locale.locale === 'zh-cn' ? '今' : locale.today}
         </button>)}

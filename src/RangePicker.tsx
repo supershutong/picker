@@ -389,8 +389,8 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       // Open to reset view date
       if (!mergedOpen) {
         setViewDate(null, index);
-        setLeftDate(getViewDate(0))
-        setRightDate(getClosingViewDate(getViewDate(1), picker, generateConfig))
+        setLeftDate(getViewDate(0));
+        setRightDate(getClosingViewDate(getViewDate(1), picker, generateConfig));
       }
     } else if (mergedActivePickerIndex === index) {
       triggerInnerOpen(newOpen);
@@ -1001,19 +1001,17 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
             if (
               /** 右翻页 */
               !generateConfig.isAfter(viewDate, newViewDate) &&
-              generateConfig.isSame(
+              (generateConfig.isSame(
+                /** 左右面板要取月初，避免用户值日期不同导致月份isSame判断错误 */
                 /** 左面板右翻页后等于右面板 */
-                getClosingViewDate(
-                  viewDate as Moment,
-                  picker,
-                  generateConfig as GenerateConfig<Moment>,
-                ).startOf(modeMap[currentMode]) as DateType,
-                (rightDate as Moment)
-                  .clone()
-                  .startOf(
-                    modeMap[currentMode],
-                  ) as DateType /** 左右面板要取月初，避免用户值日期不同导致月份isSame判断错误 */,
-              )
+                (newViewDate as Moment).clone().startOf(modeMap[currentMode]) as DateType,
+                (rightDate as Moment).clone().startOf(modeMap[currentMode]) as DateType,
+              ) ||
+                generateConfig.isAfter(
+                  /** 左面板右翻页后大于右面板 */
+                  (newViewDate as Moment).clone().startOf(modeMap[currentMode]) as DateType,
+                  (rightDate as Moment).clone().startOf(modeMap[currentMode]) as DateType,
+                ))
             ) {
               // 左面板右翻页，且左面板翻页后等于右面板，则右面板也需要 +1
               setRightDate(getClosingViewDate(newViewDate, picker, generateConfig));
@@ -1033,20 +1031,17 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
             if (
               /** 左翻页 */
               generateConfig.isAfter(nextViewDate, newViewDate) &&
-              generateConfig.isSame(
+              (generateConfig.isSame(
+                /** 左右面板要取月初，避免用户值日期不同导致月份isSame判断错误 */
                 /** 右面板左翻页后等于左面板 */
-                getClosingViewDate(
-                  nextViewDate as Moment,
-                  picker,
-                  generateConfig as GenerateConfig<Moment>,
-                  -1,
-                ).startOf(modeMap[currentMode]) as DateType,
-                (leftDate as Moment)
-                  .clone()
-                  .startOf(
-                    modeMap[currentMode],
-                  ) as DateType /** 左右面板要取月初，避免用户值日期不同导致月份isSame判断错误 */,
-              )
+                (newViewDate as Moment).clone().startOf(modeMap[currentMode]) as DateType,
+                (leftDate as Moment).clone().startOf(modeMap[currentMode]) as DateType,
+              ) ||
+                generateConfig.isAfter(
+                  /** 右面板左翻页后小于左面板 */
+                  (leftDate as Moment).clone().startOf(modeMap[currentMode]) as DateType,
+                  (newViewDate as Moment).clone().startOf(modeMap[currentMode]) as DateType,
+                ))
             ) {
               // 右面板左翻页，且右面板翻页后等于左面板，则左面板也需要 -1
               setLeftDate(getClosingViewDate(newViewDate, picker, generateConfig, -1));

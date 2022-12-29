@@ -8,6 +8,7 @@ export type ContextOperationRefProps = {
 
 export type PanelContextProps = {
   operationRef?: React.MutableRefObject<ContextOperationRefProps | null>;
+  fieldid?: string;
   /** Only work with time panel */
   hideHeader?: boolean;
   panelRef?: React.Ref<HTMLDivElement>;

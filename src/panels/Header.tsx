@@ -50,7 +50,7 @@ function Header({
   sourceMode,
   sourceModeCopy,
 }: HeaderProps) {
-  const { hideNextBtn, hidePrevBtn } = React.useContext(PanelContext);
+  const { hideNextBtn, hidePrevBtn, fieldid } = React.useContext(PanelContext);
   const sourceModeCopyVar = sourceModeCopy ? sourceModeCopy : sourceMode;
 
   return (
@@ -69,6 +69,8 @@ function Header({
               ? locale.previousCentury
               : locale.previousYear
           }
+          // @ts-ignore
+          fieldid={fieldid && `${fieldid}_super_prev_btn`}
         >
           {superPrevIcon}
         </button>
@@ -81,11 +83,19 @@ function Header({
           className={`${prefixCls}-prev-btn`}
           style={hidePrevBtn ? HIDDEN_STYLE : {}}
           title={locale.previousMonth}
+          // @ts-ignore
+          fieldid={fieldid && `${fieldid}_prev_btn`}
         >
           {prevIcon}
         </button>
       )}
-      <div className={`${prefixCls}-view`}>{children}</div>
+      <div
+        className={`${prefixCls}-view`}
+        // @ts-ignore
+        fieldid={fieldid && `${fieldid}_view`}
+      >
+        {children}
+      </div>
       {onNext && (
         <button
           type="button"
@@ -94,6 +104,8 @@ function Header({
           className={`${prefixCls}-next-btn`}
           style={hideNextBtn ? HIDDEN_STYLE : {}}
           title={locale.nextMonth}
+          // @ts-ignore
+          fieldid={fieldid && `${fieldid}_next_btn`}
         >
           {nextIcon}
         </button>
@@ -112,11 +124,14 @@ function Header({
               ? locale.nextCentury
               : locale.nextYear
           }
+          // @ts-ignore
+          fieldid={fieldid && `${fieldid}_super_next_btn`}
         >
           {superNextIcon}
         </button>
       )}
-      {showTodayBtn && (<button
+      {showTodayBtn && (
+        <button
           type="button"
           onClick={onCurrent}
           tabIndex={-1}
@@ -126,7 +141,8 @@ function Header({
           fieldid={fieldid && `${fieldid}_header_today_btn`}
         >
           {locale.locale === 'zh-cn' ? '今' : locale.today}
-        </button>)}
+        </button>
+      )}
     </div>
   );
 }

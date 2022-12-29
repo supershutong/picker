@@ -844,6 +844,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     return (
       <RangeContext.Provider
         value={{
+          fieldid,
           inRange: true,
           panelPosition,
           rangedValue: rangeHoverValue || selectedValue,
@@ -1199,6 +1200,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     <PanelContext.Provider
       value={{
         operationRef,
+        fieldid,
         hideHeader: picker === 'time',
         onDateMouseEnter,
         onDateMouseLeave,

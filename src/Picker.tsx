@@ -519,6 +519,7 @@ function InnerPicker<DateType>(props: PickerProps<DateType>) {
     <PanelContext.Provider
       value={{
         operationRef,
+        fieldid,
         hideHeader: picker === 'time',
         panelRef: panelDivRef,
         onSelect: onContextSelect,

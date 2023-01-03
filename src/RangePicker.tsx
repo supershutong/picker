@@ -342,12 +342,22 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     openRecordsRef.current[0],
   );
 
+  const [leftDate, setLeftDate] = useState(getViewDate(0));
+  const [rightDate, setRightDate] = useState(
+    getClosingViewDate(getViewDate(1), picker, generateConfig),
+  );
+
   // ============================= Open ==============================
   const [mergedOpen, triggerInnerOpen] = useMergedState(false, {
     value: open,
     defaultValue: defaultOpen,
     postState: (postOpen) => (mergedDisabled[mergedActivePickerIndex] ? false : postOpen),
     onChange: (newOpen) => {
+      if (newOpen) {
+        setLeftDate(getViewDate(0));
+        setRightDate(getClosingViewDate(getViewDate(1), picker, generateConfig));
+      }
+
       if (onOpenChange) {
         onOpenChange(newOpen);
       }
@@ -373,11 +383,6 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
   // ============================ Trigger ============================
   const triggerRef = React.useRef<any>();
 
-  const [leftDate, setLeftDate] = useState(getViewDate(0));
-  const [rightDate, setRightDate] = useState(
-    getClosingViewDate(getViewDate(1), picker, generateConfig),
-  );
-
   function triggerOpen(newOpen: boolean, index: 0 | 1) {
     if (newOpen) {
       clearTimeout(triggerRef.current);
@@ -389,8 +394,6 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       // Open to reset view date
       if (!mergedOpen) {
         setViewDate(null, index);
-        setLeftDate(getViewDate(0));
-        setRightDate(getClosingViewDate(getViewDate(1), picker, generateConfig));
       }
     } else if (mergedActivePickerIndex === index) {
       triggerInnerOpen(newOpen);

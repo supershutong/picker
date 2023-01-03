@@ -39,7 +39,7 @@ function YearPanel<DateType>(props: YearPanelProps<DateType>) {
           onSelect(generateConfig.addYear(value || viewDate, diff * YEAR_COL_COUNT), 'key');
         },
         onEnter: () => {
-          onPanelChange(sourceMode === 'date' ? 'date' : 'month', value || viewDate);
+          onPanelChange('month', value || viewDate);
         },
       }),
   };
@@ -55,12 +55,7 @@ function YearPanel<DateType>(props: YearPanelProps<DateType>) {
   React.useEffect(() => {
     if (
       sourceMode &&
-      (sourceMode === 'date' ||
-        sourceMode === 'week' ||
-        sourceMode === 'quarter' ||
-        sourceMode === 'year' ||
-        sourceMode === 'halfYear' ||
-        sourceMode === 'month')
+      ['date', 'week', 'quarter', 'year', 'halfYear', 'month'].includes(sourceMode)
     ) {
       setSourceModeCopy('decade');
     }
@@ -86,7 +81,7 @@ function YearPanel<DateType>(props: YearPanelProps<DateType>) {
         {...props}
         prefixCls={prefixCls}
         onSelect={(date) => {
-          onPanelChange(sourceMode === 'date' ? 'date' : 'month', date);
+          onPanelChange('month', date);
           onSelect(date, 'mouse');
         }}
       />

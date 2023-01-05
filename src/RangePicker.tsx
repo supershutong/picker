@@ -354,6 +354,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     postState: (postOpen) => (mergedDisabled[mergedActivePickerIndex] ? false : postOpen),
     onChange: (newOpen) => {
       if (newOpen) {
+        setInnerModes([picker, picker]);
         setLeftDate(getViewDate(0));
         setRightDate(getClosingViewDate(getViewDate(1), picker, generateConfig));
       }

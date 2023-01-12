@@ -12,6 +12,7 @@ export type Unit = {
 
 export type TimeUnitColumnProps = {
   prefixCls?: string;
+  className?: string;
   units?: Unit[];
   value?: number;
   active?: boolean;
@@ -20,7 +21,7 @@ export type TimeUnitColumnProps = {
 };
 
 function TimeUnitColumn(props: TimeUnitColumnProps) {
-  const { prefixCls, units, onSelect, value, active, hideDisabledOptions } = props;
+  const { prefixCls, className, units, onSelect, value, active, hideDisabledOptions } = props;
   const cellPrefixCls = `${prefixCls}-cell`;
   const { open } = React.useContext(PanelContext);
 
@@ -53,7 +54,7 @@ function TimeUnitColumn(props: TimeUnitColumnProps) {
 
   return (
     <ul
-      className={classNames(`${prefixCls}-column`, {
+      className={classNames(`${prefixCls}-column`, className, {
         [`${prefixCls}-column-active`]: active,
       })}
       ref={ulRef}

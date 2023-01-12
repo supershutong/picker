@@ -227,17 +227,17 @@ function TimeBody<DateType>(props: TimeBodyProps<DateType>) {
   }
 
   // Hour
-  addColumnNode(showHour, <TimeUnitColumn key="hour" />, hour, hours, (num) => {
+  addColumnNode(showHour, <TimeUnitColumn key="hour" className={`${columnPrefixCls}-hour`} />, hour, hours, (num) => {
     onSelect(setTime(isPM, num, minute, second), 'mouse');
   });
 
   // Minute
-  addColumnNode(showMinute, <TimeUnitColumn key="minute" />, minute, minutes, (num) => {
+  addColumnNode(showMinute, <TimeUnitColumn key="minute" className={`${columnPrefixCls}-minute`} />, minute, minutes, (num) => {
     onSelect(setTime(isPM, hour, num, second), 'mouse');
   });
 
   // Second
-  addColumnNode(showSecond, <TimeUnitColumn key="second" />, second, seconds, (num) => {
+  addColumnNode(showSecond, <TimeUnitColumn key="second" className={`${columnPrefixCls}-second`} />, second, seconds, (num) => {
     onSelect(setTime(isPM, hour, minute, num), 'mouse');
   });
 
@@ -249,7 +249,7 @@ function TimeBody<DateType>(props: TimeBodyProps<DateType>) {
 
   addColumnNode(
     use12Hours === true,
-    <TimeUnitColumn key="12hours" />,
+    <TimeUnitColumn key="12hours" className={`${columnPrefixCls}-12hours`} />,
     PMIndex,
     [
       { label: 'AM', value: 0, disabled: AMDisabled },

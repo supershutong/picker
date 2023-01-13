@@ -4,7 +4,7 @@ import HalfYearBody from './HalfYearBody';
 import { createKeyDownHandler } from '../../utils/uiUtil';
 import type { PanelSharedProps } from '../../interface';
 
-export type HalfYearPanelProps<DateType> = {} & PanelSharedProps<DateType>;
+export type HalfYearPanelProps<DateType> = { headerSelect?: any } & PanelSharedProps<DateType>;
 
 function HalfYearPanel<DateType>(props: HalfYearPanelProps<DateType>) {
   const {
@@ -17,6 +17,9 @@ function HalfYearPanel<DateType>(props: HalfYearPanelProps<DateType>) {
     onPanelChange,
     onSelect,
     sourceMode,
+    diffValue,
+    headerSelect,
+    showSelectMask,
   } = props;
 
   const panelPrefixCls = `${prefixCls}-halfYear-panel`;
@@ -41,7 +44,7 @@ function HalfYearPanel<DateType>(props: HalfYearPanelProps<DateType>) {
   const onYearChange = (diff: number) => {
     const newDate = generateConfig.addYear(viewDate, diff);
     onViewDateChange(newDate);
-    onPanelChange(null, newDate);
+    onPanelChange(null, newDate, 'year', diff);
   };
 
   const [sourceModeCopy, setSourceModeCopy] = React.useState<any>(sourceMode);
@@ -50,6 +53,12 @@ function HalfYearPanel<DateType>(props: HalfYearPanelProps<DateType>) {
       setSourceModeCopy('decade1');
     }
   }, [sourceMode]);
+
+  React.useEffect(() => {
+    if (diffValue) {
+      onYearChange(diffValue[0]);
+    }
+  }, [diffValue]);
 
   return (
     /* HalfYearHeader is the same with QuarterHeader */
@@ -75,6 +84,19 @@ function HalfYearPanel<DateType>(props: HalfYearPanelProps<DateType>) {
           onSelect(date, 'mouse');
         }}
       />
+      {headerSelect != undefined && showSelectMask ? (
+        <div
+          style={{
+            opacity: '0.5',
+            width: '100%',
+            height: '100%',
+            background: '#fff',
+            position: 'absolute',
+            left: 0,
+            zIndex: '100',
+          }}
+        />
+      ) : null}
     </div>
   );
 }

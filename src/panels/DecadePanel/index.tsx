@@ -24,26 +24,17 @@ function DecadePanel<DateType>(props: DecadePanelProps<DateType>) {
 
   // ======================= Keyboard =======================
   operationRef.current = {
-    onKeyDown: event =>
+    onKeyDown: (event) =>
       createKeyDownHandler(event, {
-        onLeftRight: diff => {
-          onSelect(
-            generateConfig.addYear(viewDate, diff * DECADE_UNIT_DIFF),
-            'key',
-          );
+        onLeftRight: (diff) => {
+          onSelect(generateConfig.addYear(viewDate, diff * DECADE_UNIT_DIFF), 'key');
         },
-        onCtrlLeftRight: diff => {
-          onSelect(
-            generateConfig.addYear(viewDate, diff * DECADE_DISTANCE_COUNT),
-            'key',
-          );
+        onCtrlLeftRight: (diff) => {
+          onSelect(generateConfig.addYear(viewDate, diff * DECADE_DISTANCE_COUNT), 'key');
         },
-        onUpDown: diff => {
+        onUpDown: (diff) => {
           onSelect(
-            generateConfig.addYear(
-              viewDate,
-              diff * DECADE_UNIT_DIFF * DECADE_COL_COUNT,
-            ),
+            generateConfig.addYear(viewDate, diff * DECADE_UNIT_DIFF * DECADE_COL_COUNT),
             'key',
           );
         },
@@ -55,12 +46,9 @@ function DecadePanel<DateType>(props: DecadePanelProps<DateType>) {
 
   // ==================== View Operation ====================
   const onDecadesChange = (diff: number) => {
-    const newDate = generateConfig.addYear(
-      viewDate,
-      diff * DECADE_DISTANCE_COUNT,
-    );
+    const newDate = generateConfig.addYear(viewDate, diff * DECADE_DISTANCE_COUNT);
     onViewDateChange(newDate);
-    onPanelChange(null, newDate);
+    onPanelChange(null, newDate, 'year', diff);
   };
 
   const onInternalSelect = (date: DateType) => {
@@ -80,11 +68,7 @@ function DecadePanel<DateType>(props: DecadePanelProps<DateType>) {
           onDecadesChange(1);
         }}
       />
-      <DecadeBody
-        {...props}
-        prefixCls={prefixCls}
-        onSelect={onInternalSelect}
-      />
+      <DecadeBody {...props} prefixCls={prefixCls} onSelect={onInternalSelect} />
     </div>
   );
 }

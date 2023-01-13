@@ -4,7 +4,7 @@ import QuarterBody from './QuarterBody';
 import type { PanelSharedProps } from '../../interface';
 import { createKeyDownHandler } from '../../utils/uiUtil';
 
-export type QuarterPanelProps<DateType> = {} & PanelSharedProps<DateType>;
+export type QuarterPanelProps<DateType> = { headerSelect?: any } & PanelSharedProps<DateType>;
 
 function QuarterPanel<DateType>(props: QuarterPanelProps<DateType>) {
   const {
@@ -17,6 +17,9 @@ function QuarterPanel<DateType>(props: QuarterPanelProps<DateType>) {
     onPanelChange,
     onSelect,
     sourceMode,
+    diffValue,
+    headerSelect,
+    showSelectMask,
   } = props;
 
   const panelPrefixCls = `${prefixCls}-quarter-panel`;
@@ -41,7 +44,7 @@ function QuarterPanel<DateType>(props: QuarterPanelProps<DateType>) {
   const onYearChange = (diff: number) => {
     const newDate = generateConfig.addYear(viewDate, diff);
     onViewDateChange(newDate);
-    onPanelChange(null, newDate);
+    onPanelChange(null, newDate, 'year', diff);
   };
 
   const [sourceModeCopy, setSourceModeCopy] = React.useState<any>(sourceMode);
@@ -50,6 +53,12 @@ function QuarterPanel<DateType>(props: QuarterPanelProps<DateType>) {
       setSourceModeCopy('decade1');
     }
   }, [sourceMode]);
+
+  React.useEffect(() => {
+    if (diffValue) {
+      onYearChange(diffValue[0]);
+    }
+  }, [diffValue]);
 
   return (
     <div className={panelPrefixCls}>
@@ -74,6 +83,19 @@ function QuarterPanel<DateType>(props: QuarterPanelProps<DateType>) {
           onSelect(date, 'mouse');
         }}
       />
+      {headerSelect != undefined && showSelectMask ? (
+        <div
+          style={{
+            opacity: '0.5',
+            width: '100%',
+            height: '100%',
+            background: '#fff',
+            position: 'absolute',
+            left: 0,
+            zIndex: '100',
+          }}
+        />
+      ) : null}
     </div>
   );
 }

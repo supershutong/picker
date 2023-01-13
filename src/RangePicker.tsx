@@ -103,7 +103,12 @@ export type RangePickerSharedProps<DateType> = {
     formatString: [string, string],
     info: RangeInfo,
   ) => void;
-  onPanelChange?: (values: RangeValue<DateType>, modes: [PanelMode, PanelMode]) => void;
+  onPanelChange?: (
+    values: RangeValue<DateType>,
+    modes: [PanelMode, PanelMode],
+    type?: 'year' | 'month',
+    diff?: number,
+  ) => void;
   onFocus?: React.FocusEventHandler<HTMLInputElement>;
   onBlur?: React.FocusEventHandler<HTMLInputElement>;
   onMouseDown?: React.MouseEventHandler<HTMLDivElement>;
@@ -120,6 +125,11 @@ export type RangePickerSharedProps<DateType> = {
   activePickerIndex?: 0 | 1;
   dateRender?: RangeDateRender<DateType>;
   panelRender?: (originPanel: React.ReactNode) => React.ReactNode;
+  diffValue?: [number, number];
+  headerSelectLeft?: any;
+  headerSelectRight?: any;
+  showSelectMask?: boolean;
+  onInputFocus?: any;
 };
 
 type OmitPickerProps<Props> = Omit<
@@ -171,6 +181,9 @@ type OmitType<DateType> = Omit<RangePickerBaseProps<DateType>, 'picker'> &
 
 type MergedRangePickerProps<DateType> = {
   picker?: PickerMode;
+  headerSelectRight: any;
+  headerSelectLeft: any;
+  onInputFocus?: any;
 } & OmitType<DateType>;
 
 function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
@@ -234,6 +247,9 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     activePresetLabel,
     activePickerIndex,
     autoComplete = 'off',
+    headerSelectRight,
+    headerSelectLeft,
+    onInputFocus,
   } = props as MergedRangePickerProps<DateType>;
 
   const needConfirmButton: boolean = (picker === 'date' && !!showTime) || picker === 'time';
@@ -320,11 +336,16 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     setInnerModes([picker, picker]);
   }, [picker]);
 
-  const triggerModesChange = (modes: [PanelMode, PanelMode], values: RangeValue<DateType>) => {
+  const triggerModesChange = (
+    modes: [PanelMode, PanelMode],
+    values: RangeValue<DateType>,
+    type?: 'year' | 'month',
+    diff?: number,
+  ) => {
     setInnerModes(modes);
 
     if (onPanelChange) {
-      onPanelChange(values, modes);
+      onPanelChange(values, modes, type, diff);
     }
   };
 
@@ -814,7 +835,9 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
   // ============================= Panel =============================
   function renderPanel(
     panelPosition: 'left' | 'right' | false = false,
-    panelProps: Partial<PickerPanelProps<DateType>> = {},
+    panelProps: Partial<
+      PickerPanelProps<DateType> & { headerSelectLeft: any; headerSelectRight: any }
+    > = {},
   ) {
     let panelHoverRangedValue: RangeValue<DateType> = null;
     if (
@@ -844,6 +867,12 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
           range: mergedActivePickerIndex ? 'end' : 'start',
         });
     }
+    let headerSelect = null;
+    if (panelPosition === 'left') {
+      headerSelect = panelProps.headerSelectLeft;
+    } else {
+      headerSelect = panelProps.headerSelectRight;
+    }
 
     return (
       <RangeContext.Provider
@@ -858,6 +887,13 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
         <PickerPanel<DateType>
           {...(props as any)}
           {...panelProps}
+          headerSelect={
+            showTime
+              ? mergedActivePickerIndex === 0
+                ? headerSelectLeft
+                : headerSelectRight
+              : headerSelect
+          }
           fieldid={
             fieldid && panelPosition
               ? fieldid + '_' + panelPosition
@@ -887,7 +923,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
           value={getValue(selectedValue, mergedActivePickerIndex)}
           locale={locale}
           tabIndex={-1}
-          onPanelChange={(date, newMode) => {
+          onPanelChange={(date, newMode, type, diff) => {
             // clear hover value when panel change
             if (mergedActivePickerIndex === 0) {
               onStartLeave(true);
@@ -898,6 +934,8 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
             triggerModesChange(
               updateValues(mergedModes, newMode, mergedActivePickerIndex),
               updateValues(selectedValue, date, mergedActivePickerIndex),
+              type,
+              diff,
             );
 
             let viewDate = date;
@@ -1026,6 +1064,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
           // 左右面板关联
           setViewDate(newViewDate, mergedActivePickerIndex);
         },
+        headerSelectLeft,
       });
       const rightPanel = renderPanel('right', {
         pickerValue: !linkedPanels ? rightDate : nextViewDate,
@@ -1059,6 +1098,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
             mergedActivePickerIndex,
           );
         },
+        headerSelectRight,
       });
 
       if (direction === 'rtl') {
@@ -1194,6 +1234,18 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       setSelectedValue(values);
     }
   };
+  const onStartFocus = () => {
+    const startValue = startHoverValue || startText;
+    if (onInputFocus) {
+      onInputFocus(mergedActivePickerIndex, startValue);
+    }
+  };
+  const onEndFocus = () => {
+    const endValue = endHoverValue || endText;
+    if (onInputFocus) {
+      onInputFocus(mergedActivePickerIndex, endValue);
+    }
+  };
 
   return (
     <PanelContext.Provider
@@ -1258,6 +1310,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
               {...startInputProps}
               {...inputSharedProps}
               autoComplete={autoComplete}
+              onFocus={onStartFocus}
             />
           </div>
           <div className={`${prefixCls}-range-separator`} ref={separatorRef}>
@@ -1282,6 +1335,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
               {...endInputProps}
               {...inputSharedProps}
               autoComplete={autoComplete}
+              onFocus={onEndFocus}
             />
           </div>
           <div

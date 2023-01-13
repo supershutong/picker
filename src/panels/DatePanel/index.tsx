@@ -7,6 +7,7 @@ import type { PanelSharedProps } from '../../interface';
 import { WEEK_DAY_COUNT } from '../../utils/dateUtil';
 import type { KeyboardConfig } from '../../utils/uiUtil';
 import { createKeyDownHandler } from '../../utils/uiUtil';
+import moment from 'moment';
 
 const DATE_ROW_COUNT = 6;
 
@@ -20,6 +21,7 @@ export type DatePanelProps<DateType> = {
   // Used for week panel
   panelName?: string;
   keyboardConfig?: KeyboardConfig;
+  headerSelect?: any;
 } & PanelSharedProps<DateType> &
   DateBodyPassProps<DateType>;
 
@@ -39,6 +41,9 @@ function DatePanel<DateType>(props: DatePanelProps<DateType>) {
     onPanelChange,
     onSelect,
     sourceMode,
+    diffValue,
+    headerSelect,
+    showSelectMask,
   } = props;
   const panelPrefixCls = `${prefixCls}-${panelName}-panel`;
 
@@ -66,12 +71,12 @@ function DatePanel<DateType>(props: DatePanelProps<DateType>) {
   const onYearChange = (diff: number) => {
     const newDate = generateConfig.addYear(viewDate, diff);
     onViewDateChange(newDate);
-    onPanelChange(null, newDate);
+    onPanelChange(null, newDate, 'year', diff);
   };
   const onMonthChange = (diff: number) => {
     const newDate = generateConfig.addMonth(viewDate, diff);
     onViewDateChange(newDate);
-    onPanelChange(null, newDate);
+    onPanelChange(null, newDate, 'month', diff);
   };
 
   const [sourceModeCopy, setSourceModeCopy] = React.useState<any>(sourceMode);
@@ -80,6 +85,22 @@ function DatePanel<DateType>(props: DatePanelProps<DateType>) {
       setSourceModeCopy('decade1');
     }
   }, [sourceMode]);
+  const onYearMonthChange = () => {
+    let currentDate;
+    if (diffValue && diffValue[0] >= 0) {
+      currentDate = moment(viewDate).add(diffValue[0], 'year');
+    } else {
+      currentDate = moment(viewDate).subtract(-diffValue[0], 'year');
+    }
+    const newDate = generateConfig.addMonth(currentDate as DateType, diffValue[1]);
+    onViewDateChange(newDate);
+  };
+
+  React.useEffect(() => {
+    if (diffValue) {
+      onYearMonthChange();
+    }
+  }, [diffValue]);
 
   return (
     <div
@@ -115,7 +136,7 @@ function DatePanel<DateType>(props: DatePanelProps<DateType>) {
           onPanelChange('year', viewDate);
         }}
         onCurrent={() => {
-          onViewDateChange(generateConfig.getNow())
+          onViewDateChange(generateConfig.getNow());
         }}
         sourceModeCopy={sourceModeCopy}
       />
@@ -127,6 +148,19 @@ function DatePanel<DateType>(props: DatePanelProps<DateType>) {
         viewDate={viewDate}
         rowCount={DATE_ROW_COUNT}
       />
+      {headerSelect !== undefined && showSelectMask ? (
+        <div
+          style={{
+            opacity: '0.5',
+            width: '100%',
+            height: '100%',
+            background: '#fff',
+            position: 'absolute',
+            left: 0,
+            zIndex: '100',
+          }}
+        />
+      ) : null}
     </div>
   );
 }

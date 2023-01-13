@@ -31,6 +31,7 @@ export type HeaderProps = {
   sourceModeCopy?: string;
 
   children?: React.ReactNode;
+  headerSelect?: React.ReactNode;
 };
 
 function Header({
@@ -49,6 +50,7 @@ function Header({
   children,
   sourceMode,
   sourceModeCopy,
+  headerSelect,
 }: HeaderProps) {
   const { hideNextBtn, hidePrevBtn, fieldid } = React.useContext(PanelContext);
   const sourceModeCopyVar = sourceModeCopy ? sourceModeCopy : sourceMode;
@@ -94,7 +96,7 @@ function Header({
         // @ts-ignore
         fieldid={fieldid && `${fieldid}_view`}
       >
-        {children}
+        {headerSelect != undefined ? [headerSelect, children] : children}
       </div>
       {onNext && (
         <button

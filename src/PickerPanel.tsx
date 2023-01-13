@@ -263,13 +263,18 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
 
   const [sourceMode, setSourceMode] = React.useState<PanelMode>(() => mergedMode);
 
-  const onInternalPanelChange = (newMode: PanelMode | null, viewValue: DateType) => {
+  const onInternalPanelChange = (
+    newMode: PanelMode | null,
+    viewValue: DateType,
+    type?: 'year' | 'month',
+    diff?: number,
+  ) => {
     const nextMode = getInternalNextMode(newMode || mergedMode);
     setSourceMode(mergedMode);
     setInnerMode(nextMode);
 
     if (onPanelChange && (mergedMode !== nextMode || isEqual(generateConfig, viewDate, viewDate))) {
-      onPanelChange(viewValue, nextMode);
+      onPanelChange(viewValue, nextMode, type, diff);
     }
   };
 

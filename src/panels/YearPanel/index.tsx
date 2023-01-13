@@ -6,6 +6,8 @@ import { createKeyDownHandler } from '../../utils/uiUtil';
 
 export type YearPanelProps<DateType> = {
   sourceMode: PanelMode;
+  headerSelect?: any;
+  showSelectMask?: boolean;
 } & PanelSharedProps<DateType>;
 
 export const YEAR_DECADE_COUNT = 10;
@@ -21,6 +23,9 @@ function YearPanel<DateType>(props: YearPanelProps<DateType>) {
     sourceMode,
     onSelect,
     onPanelChange,
+    diffValue,
+    headerSelect,
+    showSelectMask,
   } = props;
 
   const panelPrefixCls = `${prefixCls}-year-panel`;
@@ -48,7 +53,7 @@ function YearPanel<DateType>(props: YearPanelProps<DateType>) {
   const onDecadeChange = (diff: number) => {
     const newDate = generateConfig.addYear(viewDate, diff * 10);
     onViewDateChange(newDate);
-    onPanelChange(null, newDate);
+    onPanelChange(null, newDate, 'year', diff);
   };
 
   const [sourceModeCopy, setSourceModeCopy] = React.useState<PanelMode>(sourceMode);
@@ -60,6 +65,12 @@ function YearPanel<DateType>(props: YearPanelProps<DateType>) {
       setSourceModeCopy('decade');
     }
   }, [sourceMode]);
+
+  React.useEffect(() => {
+    if (diffValue) {
+      onDecadeChange(diffValue[0]);
+    }
+  }, [diffValue]);
 
   return (
     <div className={panelPrefixCls}>
@@ -85,6 +96,19 @@ function YearPanel<DateType>(props: YearPanelProps<DateType>) {
           onSelect(date, 'mouse');
         }}
       />
+      {headerSelect != undefined && showSelectMask ? (
+        <div
+          style={{
+            opacity: '0.5',
+            width: '100%',
+            height: '100%',
+            background: '#fff',
+            position: 'absolute',
+            left: 0,
+            zIndex: '100',
+          }}
+        />
+      ) : null}
     </div>
   );
 }

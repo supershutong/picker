@@ -7,6 +7,7 @@ import { createKeyDownHandler } from '../../utils/uiUtil';
 
 export type MonthPanelProps<DateType> = {
   monthCellContentRender?: MonthCellRender<DateType>;
+  headerSelect?: any;
 } & PanelSharedProps<DateType>;
 
 function MonthPanel<DateType>(props: MonthPanelProps<DateType>) {
@@ -20,6 +21,9 @@ function MonthPanel<DateType>(props: MonthPanelProps<DateType>) {
     onPanelChange,
     onSelect,
     sourceMode,
+    diffValue,
+    headerSelect,
+    showSelectMask,
   } = props;
 
   const panelPrefixCls = `${prefixCls}-month-panel`;
@@ -47,7 +51,7 @@ function MonthPanel<DateType>(props: MonthPanelProps<DateType>) {
   const onYearChange = (diff: number) => {
     const newDate = generateConfig.addYear(viewDate, diff);
     onViewDateChange(newDate);
-    onPanelChange(null, newDate);
+    onPanelChange(null, newDate, 'year', diff);
   };
   const [sourceModeCopy, setSourceModeCopy] = React.useState<any>(sourceMode);
   React.useEffect(() => {
@@ -55,6 +59,12 @@ function MonthPanel<DateType>(props: MonthPanelProps<DateType>) {
       setSourceModeCopy('decade1');
     }
   }, [sourceMode]);
+
+  React.useEffect(() => {
+    if (diffValue) {
+      onYearChange(diffValue[0]);
+    }
+  }, [diffValue]);
 
   return (
     <div className={panelPrefixCls}>
@@ -80,6 +90,19 @@ function MonthPanel<DateType>(props: MonthPanelProps<DateType>) {
           onPanelChange('date', date);
         }}
       />
+      {headerSelect != undefined && showSelectMask ? (
+        <div
+          style={{
+            opacity: '0.5',
+            width: '100%',
+            height: '100%',
+            background: '#fff',
+            position: 'absolute',
+            left: 0,
+            zIndex: '100',
+          }}
+        />
+      ) : null}
     </div>
   );
 }

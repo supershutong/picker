@@ -58,6 +58,7 @@ export type PanelRefProps = {
   onKeyDown?: (e: React.KeyboardEvent<HTMLElement>) => boolean;
   onBlur?: React.FocusEventHandler<HTMLElement>;
   onClose?: () => void;
+  showSelectMask?: boolean;
 };
 
 export type NullableDateType<DateType> = DateType | null | undefined;
@@ -88,8 +89,15 @@ export type PanelSharedProps<DateType> = {
 
   onSelect: OnSelect<DateType>;
   onViewDateChange: (value: DateType) => void;
-  onPanelChange: (mode: PanelMode | null, viewValue: DateType) => void;
+  onPanelChange: (
+    mode: PanelMode | null,
+    viewValue: DateType,
+    type?: string,
+    diff?: number,
+  ) => void;
   sourceMode: any;
+  diffValue?: any;
+  showSelectMask?: boolean;
 };
 
 export type DisabledTimes = {
@@ -100,7 +108,12 @@ export type DisabledTimes = {
 
 export type DisabledTime<DateType> = (date: DateType | null) => DisabledTimes;
 
-export type OnPanelChange<DateType> = (value: DateType, mode: PanelMode) => void;
+export type OnPanelChange<DateType> = (
+  value: DateType,
+  mode: PanelMode,
+  type?: 'year' | 'month',
+  diff?: number,
+) => void;
 
 export type EventValue<DateType> = DateType | null;
 export type RangeValue<DateType> = [EventValue<DateType>, EventValue<DateType>] | null;

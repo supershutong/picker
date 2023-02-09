@@ -109,7 +109,7 @@ export type RangePickerSharedProps<DateType> = {
     type?: 'year' | 'month',
     diff?: number,
   ) => void;
-  onFocus?: React.FocusEventHandler<HTMLInputElement>;
+  // onFocus?: React.FocusEventHandler<HTMLInputElement>;
   onBlur?: React.FocusEventHandler<HTMLInputElement>;
   onMouseDown?: React.MouseEventHandler<HTMLDivElement>;
   onMouseUp?: React.MouseEventHandler<HTMLDivElement>;
@@ -1234,16 +1234,16 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       setSelectedValue(values);
     }
   };
-  const onStartFocus = () => {
+  const onStartFocus: React.FocusEventHandler<HTMLInputElement> = (e) => {
     const startValue = startHoverValue || startText;
     if (onInputFocus) {
-      onInputFocus(mergedActivePickerIndex, startValue);
+      onInputFocus(mergedActivePickerIndex, startValue, e);
     }
   };
-  const onEndFocus = () => {
+  const onEndFocus: React.FocusEventHandler<HTMLInputElement> = (e) => {
     const endValue = endHoverValue || endText;
     if (onInputFocus) {
-      onInputFocus(mergedActivePickerIndex, endValue);
+      onInputFocus(mergedActivePickerIndex, endValue, e);
     }
   };
 

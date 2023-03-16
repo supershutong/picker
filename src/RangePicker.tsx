@@ -586,6 +586,11 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     const disabledFunc = index === 0 ? disabledStartDate : disabledEndDate;
 
     if (inputDate && !disabledFunc(inputDate)) {
+      if (index === 0) { // fix: 修复面板未切换到input输入日期问题
+        setLeftDate(inputDate)
+      } else {
+        setRightDate(inputDate)
+      }
       setSelectedValue(updateValues(selectedValue, inputDate, index));
       setViewDate(inputDate, index);
     }

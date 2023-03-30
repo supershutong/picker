@@ -314,6 +314,11 @@ export function getCellDateDisabled<DateType>({
       const endMonth = startMonth + 2;
       return getDisabledFromRange('month', startMonth, endMonth);
     }
+    case 'halfYear': {
+      const startMonth = Math.floor(generateConfig.getMonth(cellDate) / 6) * 6;
+      const endMonth = startMonth + 5;
+      return getDisabledFromRange('month', startMonth, endMonth);
+    }
     case 'year': {
       return getDisabledFromRange('month', 0, 11);
     }

@@ -58,6 +58,10 @@ export default () => {
             locale={enUS}
           />
         </div>
+        <div style={{ margin: '0 8px' }}>
+          <h3>After Today</h3>
+          <Picker<Moment> {...sharedProps} picker='halfYear' disabledDate={disabledDateAfterToday} locale={enUS} />
+        </div>
       </div>
     </div>
   );

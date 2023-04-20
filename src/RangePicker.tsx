@@ -658,6 +658,13 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       ),
     onFocus: (e: React.FocusEvent<HTMLInputElement>) => {
       setMergedActivePickerIndex(index);
+
+      const startValue = startHoverValue || startText;
+      const endValue = endHoverValue || endText;
+      if (onInputFocus) {
+        onInputFocus(mergedActivePickerIndex, mergedActivePickerIndex === 0 ? startValue : endValue, e);
+      }
+
       if (onFocus) {
         onFocus(e);
       }
@@ -1239,18 +1246,6 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       setSelectedValue(values);
     }
   };
-  const onStartFocus: React.FocusEventHandler<HTMLInputElement> = (e) => {
-    const startValue = startHoverValue || startText;
-    if (onInputFocus) {
-      onInputFocus(mergedActivePickerIndex, startValue, e);
-    }
-  };
-  const onEndFocus: React.FocusEventHandler<HTMLInputElement> = (e) => {
-    const endValue = endHoverValue || endText;
-    if (onInputFocus) {
-      onInputFocus(mergedActivePickerIndex, endValue, e);
-    }
-  };
 
   return (
     <PanelContext.Provider
@@ -1315,7 +1310,6 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
               {...startInputProps}
               {...inputSharedProps}
               autoComplete={autoComplete}
-              onFocus={onStartFocus}
             />
           </div>
           <div className={`${prefixCls}-range-separator`} ref={separatorRef}>
@@ -1340,7 +1334,6 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
               {...endInputProps}
               {...inputSharedProps}
               autoComplete={autoComplete}
-              onFocus={onEndFocus}
             />
           </div>
           <div

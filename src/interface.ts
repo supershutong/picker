@@ -72,6 +72,7 @@ export type PanelSharedProps<DateType> = {
   viewDate: DateType;
   /** [Legacy] Set default display picker view date */
   defaultPickerValue?: DateType;
+  defaultValue?: DateType;
   locale: Locale;
   disabledDate?: (date: DateType) => boolean;
 

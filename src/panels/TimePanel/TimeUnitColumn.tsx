@@ -5,6 +5,7 @@ import { scrollTo, waitElementReady } from '../../utils/uiUtil';
 import PanelContext from '../../PanelContext';
 
 export type Unit = {
+  type: 'hour' | 'minute' | 'second' | 'ampm';
   label: React.ReactText;
   value: number;
   disabled: boolean;
@@ -23,7 +24,7 @@ export type TimeUnitColumnProps = {
 function TimeUnitColumn(props: TimeUnitColumnProps) {
   const { prefixCls, className, units, onSelect, value, active, hideDisabledOptions } = props;
   const cellPrefixCls = `${prefixCls}-cell`;
-  const { open } = React.useContext(PanelContext);
+  const { open, fieldid } = React.useContext(PanelContext);
 
   const ulRef = useRef<HTMLUListElement>(null);
   const liRefs = useRef<Map<number, HTMLElement | null>>(new Map());
@@ -71,6 +72,7 @@ function TimeUnitColumn(props: TimeUnitColumnProps) {
             ref={(element) => {
               liRefs.current.set(unit.value, element);
             }}
+            {...(fieldid ? {fieldid: `${fieldid}_${unit.type}_${unit.label}`} : {})}
             className={classNames(cellPrefixCls, {
               [`${cellPrefixCls}-disabled`]: unit.disabled,
               [`${cellPrefixCls}-selected`]: value === unit.value,

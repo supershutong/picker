@@ -47,7 +47,7 @@ export default function PanelBody<DateType>({
   titleCell,
   headerCells,
 }: PanelBodyProps<DateType>) {
-  const { onDateMouseEnter, onDateMouseLeave, mode } = React.useContext(PanelContext);
+  const { onDateMouseEnter, onDateMouseLeave, mode, fieldid } = React.useContext(PanelContext);
 
   const cellPrefixCls = `${prefixCls}-cell`;
 
@@ -82,6 +82,7 @@ export default function PanelBody<DateType>({
         <td
           key={j}
           title={title}
+          {...(fieldid ? {fieldid: `${fieldid}_${title}`} : {})}
           className={classNames(cellPrefixCls, {
             [`${cellPrefixCls}-disabled`]: disabled,
             [`${cellPrefixCls}-start`]:
@@ -110,7 +111,7 @@ export default function PanelBody<DateType>({
           {getCellNode ? (
             getCellNode(currentDate)
           ) : (
-            <div className={`${cellPrefixCls}-inner`}>{getCellText(currentDate)}</div>
+            <div className={`${cellPrefixCls}-inner`} {...(fieldid ? {fieldid: `${fieldid}_inner-${title}`} : {})}>{getCellText(currentDate)}</div>
           )}
         </td>,
       );

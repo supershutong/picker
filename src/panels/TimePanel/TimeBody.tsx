@@ -22,10 +22,12 @@ function generateUnits(
   end: number,
   step: number,
   disabledUnits: number[] | undefined,
+  type: Unit['type'],
 ) {
   const units: Unit[] = [];
   for (let i = start; i <= end; i += step) {
     units.push({
+      type,
       label: leftPad(i, 2),
       value: i,
       disabled: (disabledUnits || []).includes(i),
@@ -126,7 +128,7 @@ function TimeBody<DateType>(props: TimeBodyProps<DateType>) {
   };
 
   // ========================= Unit =========================
-  const rawHours = generateUnits(0, 23, hourStep, mergedDisabledHours && mergedDisabledHours());
+  const rawHours = generateUnits(0, 23, hourStep, mergedDisabledHours && mergedDisabledHours(), 'hour');
 
   const memorizedRawHours = useMemo(() => rawHours, rawHours, shouldUnitsUpdate);
 
@@ -172,6 +174,7 @@ function TimeBody<DateType>(props: TimeBodyProps<DateType>) {
     59,
     minuteStep,
     mergedDisabledMinutes && mergedDisabledMinutes(originHour),
+    'minute'
   );
 
   const seconds = generateUnits(
@@ -179,6 +182,7 @@ function TimeBody<DateType>(props: TimeBodyProps<DateType>) {
     59,
     secondStep,
     mergedDisabledSeconds && mergedDisabledSeconds(originHour, minute),
+    'second'
   );
 
   // ====================== Operations ======================
@@ -252,8 +256,8 @@ function TimeBody<DateType>(props: TimeBodyProps<DateType>) {
     <TimeUnitColumn key="12hours" className={`${columnPrefixCls}-12hours`} />,
     PMIndex,
     [
-      { label: 'AM', value: 0, disabled: AMDisabled },
-      { label: 'PM', value: 1, disabled: PMDisabled },
+      { label: 'AM', value: 0, disabled: AMDisabled, type: 'ampm' },
+      { label: 'PM', value: 1, disabled: PMDisabled, type: 'ampm' },
     ],
     (num) => {
       onSelect(setTime(!!num, hour, minute, second), 'mouse');

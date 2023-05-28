@@ -142,7 +142,7 @@ function Header({
           // @ts-ignore
           fieldid={fieldid && `${fieldid}_header_today_btn`}
         >
-          {locale.locale === 'zh-cn' ? '今' : locale.today}
+          {locale.locale?.startsWith('zh') ? '今' : locale.today}
         </button>
       )}
     </div>

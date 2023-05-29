@@ -2,48 +2,78 @@ import * as React from 'react';
 import classNames from 'classnames';
 import DatePanel from '../DatePanel';
 import type { PanelSharedProps } from '../../interface';
-import { isSameWeek, isInRangeWeek } from '../../utils/dateUtil';
+import PanelContext from '../../PanelContext';
+import RangeContext from '../../RangeContext';
+import { getCellDateDisabled, isInRange, isSameWeek } from '../../utils/dateUtil';
 
 export type WeekPanelProps<DateType> = PanelSharedProps<DateType>;
 
 function WeekPanel<DateType>(props: WeekPanelProps<DateType>) {
-  const { prefixCls, generateConfig, locale, value, defaultValue } = props;
+  const { prefixCls, generateConfig, locale, value, disabledDate, onSelect } = props;
+
+  const { rangedValue, hoverRangedValue } = React.useContext(RangeContext);
+  const { onDateMouseEnter, onDateMouseLeave } = React.useContext(PanelContext);
+
+  const rangeStart = hoverRangedValue?.[0] || rangedValue?.[0];
+  const rangeEnd = hoverRangedValue?.[1] || rangedValue?.[1];
 
   // Render additional column
   const cellPrefixCls = `${prefixCls}-cell`;
-  const prefixColumn = (date: DateType) => (
-    <td
-      key="week"
-      className={classNames(cellPrefixCls, `${cellPrefixCls}-week`)}
-    >
-      {generateConfig.locale.getWeek(locale.locale, date)}
-    </td>
-  );
 
-  let start: DateType, end: DateType;
-  if (defaultValue && value) {
-    if (generateConfig.isAfter(defaultValue, value)) {
-      // start>end 时起止日期自动调换
-      [start, end] = [value, defaultValue];
-    } else {
-      [start, end] = [defaultValue, value];
-    }
-  }
+  const prefixColumn = (date: DateType) => {
+    // >>> Additional check for disabled
+    const disabled = getCellDateDisabled({
+      cellDate: date,
+      mode: 'week',
+      disabledDate,
+      generateConfig,
+    });
+
+    return (
+      <td
+        key="week"
+        className={classNames(cellPrefixCls, `${cellPrefixCls}-week`)}
+        // Operation: Same as code in PanelBody
+        onClick={() => {
+          if (!disabled) {
+            onSelect(date, 'mouse');
+          }
+        }}
+        onMouseEnter={() => {
+          if (!disabled && onDateMouseEnter) {
+            onDateMouseEnter(date);
+          }
+        }}
+        onMouseLeave={() => {
+          if (!disabled && onDateMouseLeave) {
+            onDateMouseLeave(date);
+          }
+        }}
+      >
+        <div className={`${cellPrefixCls}-inner`}>
+          {generateConfig.locale.getWeek(locale.locale, date)}
+        </div>
+      </td>
+    );
+  };
 
   // Add row className
   const rowPrefixCls = `${prefixCls}-week-panel-row`;
-  const rowClassName = (date: DateType) =>
-    classNames(rowPrefixCls, {
-      [`${rowPrefixCls}-selected`]: isSameWeek(
-        generateConfig,
-        locale.locale,
-        value,
-        date,
-      ),
-      [`${rowPrefixCls}-start`]: isSameWeek(generateConfig, locale.locale, start, date),
-      [`${rowPrefixCls}-end`]: isSameWeek(generateConfig, locale.locale, end, date),
-      [`${rowPrefixCls}-in-range`]: isInRangeWeek(generateConfig, locale.locale, start, end, date),
+
+  const rowClassName = (date: DateType) => {
+    const isRangeStart = isSameWeek(generateConfig, locale.locale, rangeStart, date);
+    const isRangeEnd = isSameWeek(generateConfig, locale.locale, rangeEnd, date);
+    return classNames(rowPrefixCls, {
+      [`${rowPrefixCls}-selected`]:
+        !rangedValue && isSameWeek(generateConfig, locale.locale, value, date),
+
+      // Patch for hover range
+      [`${rowPrefixCls}-range-start`]: isRangeStart,
+      [`${rowPrefixCls}-range-end`]: isRangeEnd,
+      [`${rowPrefixCls}-in-range`]:
+        !isRangeStart && !isRangeEnd && isInRange(generateConfig, rangeStart, rangeEnd, date),
     });
+  };
 
   return (
     <DatePanel

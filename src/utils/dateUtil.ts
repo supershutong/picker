@@ -134,26 +134,6 @@ export function isSameWeek<DateType>(
   );
 }
 
-/** Between in week but not equal of week */
-export function isInRangeWeek<DateType>(
-  generateConfig: GenerateConfig<DateType>,
-  locale: string,
-  startDate: NullableDateType<DateType>,
-  endDate: NullableDateType<DateType>,
-  current: NullableDateType<DateType>,
-) {
-  if (!startDate || !endDate || !current) {
-    return false;
-  }
-
-  return (
-    !isSameWeek(generateConfig, locale, startDate, current) &&
-    !isSameWeek(generateConfig, locale, endDate, current) &&
-    generateConfig.isAfter(current, startDate) &&
-    generateConfig.isAfter(endDate, current)
-  );
-}
-
 export function isEqual<DateType>(
   generateConfig: GenerateConfig<DateType>,
   value1: NullableDateType<DateType>,

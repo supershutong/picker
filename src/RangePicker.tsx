@@ -130,6 +130,7 @@ export type RangePickerSharedProps<DateType> = {
   headerSelectRight?: any;
   showSelectMask?: boolean;
   onInputFocus?: any;
+  activeSelectPanel: 'left' | 'right' | 'none';
 };
 
 type OmitPickerProps<Props> = Omit<
@@ -250,6 +251,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     headerSelectRight,
     headerSelectLeft,
     onInputFocus,
+    activeSelectPanel,
   } = props as MergedRangePickerProps<DateType>;
 
   const needConfirmButton: boolean = (picker === 'date' && !!showTime) || picker === 'time';
@@ -1051,7 +1053,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
         pickerValue: !linkedPanels ? leftDate : viewDate,
         onPickerValueChange: (newViewDate) => {
           // 左右面板分离
-          if (!linkedPanels) {
+          if (!linkedPanels && ['left', 'none'].includes(activeSelectPanel)) {
             if (
               /** 右翻页 */
               !generateConfig.isAfter(viewDate, newViewDate) &&
@@ -1082,7 +1084,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
         pickerValue: !linkedPanels ? rightDate : nextViewDate,
         onPickerValueChange: (newViewDate) => {
           // 左右面板分离
-          if (!linkedPanels) {
+          if (!linkedPanels && ['right', 'none'].includes(activeSelectPanel)) {
             if (
               /** 左翻页 */
               generateConfig.isAfter(nextViewDate, newViewDate) &&

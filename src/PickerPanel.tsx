@@ -36,7 +36,7 @@ import type { DateRender } from './panels/DatePanel/DateBody';
 import { PickerModeMap } from './utils/uiUtil';
 import type { MonthCellRender } from './panels/MonthPanel/MonthBody';
 import RangeContext from './RangeContext';
-import getExtraFooter from './utils/getExtraFooter';
+import {getExtraFooter, getExtraHeader} from './utils/getExtraFooter';
 import getRanges from './utils/getRanges';
 import { getLowerBoundTime, setDateTime, setTime } from './utils/timeUtil';
 
@@ -68,6 +68,7 @@ export type PickerPanelSharedProps<DateType> = {
   // Render
   dateRender?: DateRender<DateType>;
   monthCellRender?: MonthCellRender<DateType>;
+  renderExtraHeader?: (mode: PanelMode) => React.ReactNode;
   renderExtraFooter?: (mode: PanelMode) => React.ReactNode;
 
   // Event
@@ -140,6 +141,7 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
     showNow,
     showTime,
     showToday,
+    renderExtraHeader,
     renderExtraFooter,
     hideHeader,
     onSelect,
@@ -488,6 +490,9 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
       }
   }
 
+  // ============================ Header ============================
+  const extraHeader: React.ReactNode = getExtraHeader(prefixCls, mergedMode, renderExtraHeader);
+
   // ============================ Footer ============================
   let extraFooter: React.ReactNode;
   let rangesNode: React.ReactNode;
@@ -582,6 +587,7 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
         onMouseDown={onMouseDown}
         ref={panelDivRef}
       >
+        {extraHeader}
         {panelNode}
         {extraFooter || rangesNode || todayNode ? (
           <div className={`${prefixCls}-footer`}>

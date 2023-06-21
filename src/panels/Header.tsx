@@ -96,7 +96,7 @@ function Header({
         // @ts-ignore
         fieldid={fieldid && `${fieldid}_view`}
       >
-        {headerSelect != undefined ? [headerSelect, children] : children}
+        {headerSelect != undefined ? [children, headerSelect] : children}
       </div>
       {onNext && (
         <button

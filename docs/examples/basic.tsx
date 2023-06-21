@@ -120,6 +120,7 @@ export default () => {
             locale={zhCN}
             allowClear
             picker="week"
+            renderExtraHeader={() => 'I am header!!!'}
             renderExtraFooter={() => 'I am footer!!!'}
             ref={weekRef}
           />

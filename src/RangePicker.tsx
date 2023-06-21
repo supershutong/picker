@@ -29,7 +29,7 @@ import type { GenerateConfig } from './generate';
 import type { PickerPanelProps } from '.';
 import RangeContext from './RangeContext';
 import useRangeDisabled from './hooks/useRangeDisabled';
-import getExtraFooter from './utils/getExtraFooter';
+import { getExtraFooter, getExtraHeader } from './utils/getExtraFooter';
 import getRanges from './utils/getRanges';
 import useRangeViewDates from './hooks/useRangeViewDates';
 import type { DateRender } from './panels/DatePanel/DateBody';
@@ -227,6 +227,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     pickerRef,
     inputReadOnly,
     mode,
+    renderExtraHeader,
     renderExtraFooter,
     onChange,
     onOpenChange,
@@ -915,6 +916,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
               ? fieldid
               : undefined
           }
+          renderExtraHeader={null}
           dateRender={panelDateRender}
           showTime={panelShowTime}
           mode={mergedModes[mergedActivePickerIndex]}
@@ -1004,6 +1006,11 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
 
   function renderPanels() {
     let panels: React.ReactNode;
+    const extraHeader = getExtraHeader(
+      prefixCls,
+      mergedModes[mergedActivePickerIndex],
+      renderExtraHeader,
+    );
     const extraNode = getExtraFooter(
       prefixCls,
       mergedModes[mergedActivePickerIndex],
@@ -1136,6 +1143,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
 
     let mergedNodes: React.ReactNode = (
       <>
+        {extraHeader}
         <div className={`${prefixCls}-panels`}>{panels}</div>
         {(extraNode || rangesNode) && (
           <div className={`${prefixCls}-footer`}>

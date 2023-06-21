@@ -86,6 +86,8 @@ export default () => {
           <h3>Basic</h3>
           <RangePicker<Moment>
             {...sharedProps}
+            renderExtraHeader={() => 'I am header!!!'}
+            renderExtraFooter={() => 'I am footer!!!'}
             value={undefined}
             locale={zhCN}
             allowClear
@@ -96,6 +98,7 @@ export default () => {
           />
           <RangePicker<Moment>
             {...sharedProps}
+            renderExtraHeader={() => 'I am header!!!'}
             locale={zhCN}
             allowClear
             ref={rangePickerRef}

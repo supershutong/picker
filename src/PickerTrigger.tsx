@@ -96,7 +96,7 @@ function PickerTrigger({
       popupStyle={popupStyle}
       getPopupContainer={getPopupContainer}
     >
-      {children}
+      {children || <div />}
     </Trigger>
   );
 }

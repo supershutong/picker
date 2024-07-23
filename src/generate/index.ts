@@ -22,8 +22,17 @@ export type GenerateConfig<DateType> = {
   setMinute: (value: DateType, minute: number) => DateType;
   setSecond: (value: DateType, second: number) => DateType;
 
+  generateByDate?: (value: DateType) => DateType;
+  add?: (value: DateType, num: number, type: any) => DateType;
+  subtract?: (value: DateType, num: number, type: any) => DateType;
+  isValidType?: (date: DateType) => boolean;
+  clone?: (date: DateType) => DateType;
+
+  startOf?: (date: DateType, value: string) => DateType;
+
   // Compare
   isAfter: (date1: DateType, date2: DateType) => boolean;
+  isSame: (date1: DateType, date2: DateType) => boolean;
   isValidate: (date: DateType) => boolean;
 
   locale: {
@@ -36,9 +45,9 @@ export type GenerateConfig<DateType> = {
     /** Should only return validate date instance */
     parse: (locale: string, text: string, formats: string[]) => DateType | null;
 
-    /** A proxy for getting locale with moment or other locale library */
+    /** A proxy for getting locale with dayjs or other locale library */
     getShortWeekDays?: (locale: string) => string[];
-    /** A proxy for getting locale with moment or other locale library */
+    /** A proxy for getting locale with dayjs or other locale library */
     getShortMonths?: (locale: string) => string[];
   };
 };

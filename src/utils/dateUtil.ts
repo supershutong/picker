@@ -42,8 +42,12 @@ export function isSameYear<DateType>(
   return generateConfig.getYear(year1!) === generateConfig.getYear(year2!);
 }
 
-export function getQuarter<DateType>(generateConfig: GenerateConfig<DateType>, date: DateType) {
-  const quota = Math.floor(generateConfig.getMonth(date) / 3);
+export function getQuarter<DateType>(
+  generateConfig: GenerateConfig<DateType>,
+  date: DateType,
+  type: 'quarter' | 'halfYear' = 'quarter',
+) {
+  const quota = Math.floor(generateConfig.getMonth(date) / (type === 'halfYear' ? 6 : 3));
   return quota + 1;
 }
 
@@ -51,6 +55,7 @@ export function isSameQuarter<DateType>(
   generateConfig: GenerateConfig<DateType>,
   quarter1: NullableDateType<DateType>,
   quarter2: NullableDateType<DateType>,
+  type: 'quarter' | 'halfYear' = 'quarter',
 ) {
   const equal = isNullEqual(quarter1, quarter2);
   if (typeof equal === 'boolean') {
@@ -59,7 +64,7 @@ export function isSameQuarter<DateType>(
 
   return (
     isSameYear(generateConfig, quarter1, quarter2) &&
-    getQuarter(generateConfig, quarter1!) === getQuarter(generateConfig, quarter2!)
+    getQuarter(generateConfig, quarter1!, type) === getQuarter(generateConfig, quarter2!, type)
   );
 }
 
@@ -186,6 +191,7 @@ export function getClosingViewDate<DateType>(
   switch (picker) {
     case 'year':
       return generateConfig.addYear(viewDate, offset * 10);
+    case 'halfYear':
     case 'quarter':
     case 'month':
       return generateConfig.addYear(viewDate, offset);
@@ -306,6 +312,11 @@ export function getCellDateDisabled<DateType>({
     case 'quarter': {
       const startMonth = Math.floor(generateConfig.getMonth(cellDate) / 3) * 3;
       const endMonth = startMonth + 2;
+      return getDisabledFromRange('month', startMonth, endMonth);
+    }
+    case 'halfYear': {
+      const startMonth = Math.floor(generateConfig.getMonth(cellDate) / 6) * 6;
+      const endMonth = startMonth + 5;
       return getDisabledFromRange('month', startMonth, endMonth);
     }
     case 'year': {

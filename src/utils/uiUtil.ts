@@ -245,6 +245,13 @@ const getMonthNextMode = (next: PanelMode): PanelMode => {
   return next;
 };
 
+const getHalfYearMode = (next: PanelMode): PanelMode => {
+  if (next === 'month' || next === 'date') {
+    return 'halfYear';
+  }
+  return next;
+};
+
 const getQuarterNextMode = (next: PanelMode): PanelMode => {
   if (next === 'month' || next === 'date') {
     return 'quarter';
@@ -262,6 +269,7 @@ const getWeekNextMode = (next: PanelMode): PanelMode => {
 export const PickerModeMap: Record<PickerMode, ((next: PanelMode) => PanelMode) | null> = {
   year: getYearNextMode,
   month: getMonthNextMode,
+  halfYear: getHalfYearMode,
   quarter: getQuarterNextMode,
   week: getWeekNextMode,
   time: null,

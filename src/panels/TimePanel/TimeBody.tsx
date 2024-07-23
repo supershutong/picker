@@ -22,10 +22,12 @@ function generateUnits(
   end: number,
   step: number,
   disabledUnits: number[] | undefined,
+  type: Unit['type'],
 ) {
   const units: Unit[] = [];
   for (let i = start; i <= end; i += step) {
     units.push({
+      type,
       label: leftPad(i, 2),
       value: i,
       disabled: (disabledUnits || []).includes(i),
@@ -126,7 +128,7 @@ function TimeBody<DateType>(props: TimeBodyProps<DateType>) {
   };
 
   // ========================= Unit =========================
-  const rawHours = generateUnits(0, 23, hourStep, mergedDisabledHours && mergedDisabledHours());
+  const rawHours = generateUnits(0, 23, hourStep, mergedDisabledHours && mergedDisabledHours(), 'hour');
 
   const memorizedRawHours = useMemo(() => rawHours, rawHours, shouldUnitsUpdate);
 
@@ -172,6 +174,7 @@ function TimeBody<DateType>(props: TimeBodyProps<DateType>) {
     59,
     minuteStep,
     mergedDisabledMinutes && mergedDisabledMinutes(originHour),
+    'minute'
   );
 
   const seconds = generateUnits(
@@ -179,6 +182,7 @@ function TimeBody<DateType>(props: TimeBodyProps<DateType>) {
     59,
     secondStep,
     mergedDisabledSeconds && mergedDisabledSeconds(originHour, minute),
+    'second'
   );
 
   // ====================== Operations ======================
@@ -227,17 +231,17 @@ function TimeBody<DateType>(props: TimeBodyProps<DateType>) {
   }
 
   // Hour
-  addColumnNode(showHour, <TimeUnitColumn key="hour" />, hour, hours, (num) => {
+  addColumnNode(showHour, <TimeUnitColumn key="hour" className={`${columnPrefixCls}-hour`} />, hour, hours, (num) => {
     onSelect(setTime(isPM, num, minute, second), 'mouse');
   });
 
   // Minute
-  addColumnNode(showMinute, <TimeUnitColumn key="minute" />, minute, minutes, (num) => {
+  addColumnNode(showMinute, <TimeUnitColumn key="minute" className={`${columnPrefixCls}-minute`} />, minute, minutes, (num) => {
     onSelect(setTime(isPM, hour, num, second), 'mouse');
   });
 
   // Second
-  addColumnNode(showSecond, <TimeUnitColumn key="second" />, second, seconds, (num) => {
+  addColumnNode(showSecond, <TimeUnitColumn key="second" className={`${columnPrefixCls}-second`} />, second, seconds, (num) => {
     onSelect(setTime(isPM, hour, minute, num), 'mouse');
   });
 
@@ -249,11 +253,11 @@ function TimeBody<DateType>(props: TimeBodyProps<DateType>) {
 
   addColumnNode(
     use12Hours === true,
-    <TimeUnitColumn key="12hours" />,
+    <TimeUnitColumn key="12hours" className={`${columnPrefixCls}-12hours`} />,
     PMIndex,
     [
-      { label: 'AM', value: 0, disabled: AMDisabled },
-      { label: 'PM', value: 1, disabled: PMDisabled },
+      { label: 'AM', value: 0, disabled: AMDisabled, type: 'ampm' },
+      { label: 'PM', value: 1, disabled: PMDisabled, type: 'ampm' },
     ],
     (num) => {
       onSelect(setTime(!!num, hour, minute, second), 'mouse');

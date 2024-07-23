@@ -5,7 +5,7 @@ const locale: Locale = {
   today: 'Hôm nay',
   now: 'Bây giờ',
   backToToday: 'Trở về hôm nay',
-  ok: 'OK',
+  ok: 'Chắc chắn',
   clear: 'Xóa',
   month: 'Tháng',
   year: 'Năm',

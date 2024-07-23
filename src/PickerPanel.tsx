@@ -17,6 +17,7 @@ import DatePanel from './panels/DatePanel';
 import WeekPanel from './panels/WeekPanel';
 import MonthPanel from './panels/MonthPanel';
 import QuarterPanel from './panels/QuarterPanel';
+import HalfYearPanel from './panels/HalfYearPanel';
 import YearPanel from './panels/YearPanel';
 import DecadePanel from './panels/DecadePanel';
 import type { GenerateConfig } from './generate';
@@ -35,17 +36,19 @@ import type { DateRender } from './panels/DatePanel/DateBody';
 import { PickerModeMap } from './utils/uiUtil';
 import type { MonthCellRender } from './panels/MonthPanel/MonthBody';
 import RangeContext from './RangeContext';
-import getExtraFooter from './utils/getExtraFooter';
+import {getExtraFooter, getExtraHeader} from './utils/getExtraFooter';
 import getRanges from './utils/getRanges';
 import { getLowerBoundTime, setDateTime, setTime } from './utils/timeUtil';
 
 export type PickerPanelSharedProps<DateType> = {
   prefixCls?: string;
   className?: string;
+  fieldid?: string;
   style?: React.CSSProperties;
   /** @deprecated Will be removed in next big version. Please use `mode` instead */
   mode?: PanelMode;
   tabIndex?: number;
+  linkedPanels?: boolean;
 
   // Locale
   locale: Locale;
@@ -65,6 +68,7 @@ export type PickerPanelSharedProps<DateType> = {
   // Render
   dateRender?: DateRender<DateType>;
   monthCellRender?: MonthCellRender<DateType>;
+  renderExtraHeader?: (mode: PanelMode) => React.ReactNode;
   renderExtraFooter?: (mode: PanelMode) => React.ReactNode;
 
   // Event
@@ -121,6 +125,7 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
   const {
     prefixCls = 'rc-picker',
     className,
+    fieldid,
     style,
     locale,
     generateConfig,
@@ -129,12 +134,14 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
     pickerValue,
     defaultPickerValue,
     disabledDate,
+    linkedPanels,
     mode,
     picker = 'date',
     tabIndex = 0,
     showNow,
     showTime,
     showToday,
+    renderExtraHeader,
     renderExtraFooter,
     hideHeader,
     onSelect,
@@ -258,13 +265,18 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
 
   const [sourceMode, setSourceMode] = React.useState<PanelMode>(() => mergedMode);
 
-  const onInternalPanelChange = (newMode: PanelMode | null, viewValue: DateType) => {
+  const onInternalPanelChange = (
+    newMode: PanelMode | null,
+    viewValue: DateType,
+    type?: 'year' | 'month',
+    diff?: number,
+  ) => {
     const nextMode = getInternalNextMode(newMode || mergedMode);
     setSourceMode(mergedMode);
     setInnerMode(nextMode);
 
     if (onPanelChange && (mergedMode !== nextMode || isEqual(generateConfig, viewDate, viewDate))) {
-      onPanelChange(viewValue, nextMode);
+      onPanelChange(viewValue, nextMode, type, diff);
     }
   };
 
@@ -362,6 +374,7 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
     sourceMode,
     onPanelChange: onInternalPanelChange,
     disabledDate,
+    showTodayBtn: !linkedPanels && mode === 'date',
   };
   delete pickerProps.onChange;
   delete pickerProps.onSelect;
@@ -406,6 +419,18 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
     case 'quarter':
       panelNode = (
         <QuarterPanel<DateType>
+          {...pickerProps}
+          onSelect={(date, type) => {
+            setViewDate(date);
+            triggerSelect(date, type);
+          }}
+        />
+      );
+      break;
+
+    case 'halfYear':
+      panelNode = (
+        <HalfYearPanel<DateType>
           {...pickerProps}
           onSelect={(date, type) => {
             setViewDate(date);
@@ -465,6 +490,9 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
       }
   }
 
+  // ============================ Header ============================
+  const extraHeader: React.ReactNode = getExtraHeader(prefixCls, mergedMode, renderExtraHeader);
+
   // ============================ Footer ============================
   let extraFooter: React.ReactNode;
   let rangesNode: React.ReactNode;
@@ -493,6 +521,7 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
     extraFooter = getExtraFooter(prefixCls, mergedMode, renderExtraFooter);
     rangesNode = getRanges({
       prefixCls,
+      fieldid,
       components,
       needConfirmButton,
       okDisabled: !mergedValue || (disabledDate && disabledDate(mergedValue)),
@@ -525,6 +554,9 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
             triggerSelect(now, 'mouse', true);
           }
         }}
+        title={locale.today}
+        // @ts-ignore
+        fieldid={fieldid && `${fieldid}_footer_today_btn`}
       >
         {locale.today}
       </a>
@@ -537,8 +569,8 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
         ...panelContext,
         mode: mergedMode,
         hideHeader: 'hideHeader' in props ? hideHeader : panelContext.hideHeader,
-        hidePrevBtn: inRange && panelPosition === 'right',
-        hideNextBtn: inRange && panelPosition === 'left',
+        hidePrevBtn: linkedPanels && inRange && panelPosition === 'right', // 左右面板隔离需求时不隐藏上翻页箭头
+        hideNextBtn: linkedPanels && inRange && panelPosition === 'left', // 左右面板隔离需求时不隐藏下翻页箭头
       }}
     >
       <div
@@ -555,6 +587,7 @@ function PickerPanel<DateType>(props: PickerPanelProps<DateType>) {
         onMouseDown={onMouseDown}
         ref={panelDivRef}
       >
+        {extraHeader}
         {panelNode}
         {extraFooter || rangesNode || todayNode ? (
           <div className={`${prefixCls}-footer`}>

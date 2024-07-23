@@ -1,16 +1,12 @@
 import * as React from 'react';
-import MonthHeader from './MonthHeader';
-import type { MonthCellRender } from './MonthBody';
-import MonthBody, { MONTH_COL_COUNT } from './MonthBody';
-import type { PanelSharedProps } from '../../interface';
+import HalfYearHeader from '../QuarterPanel/QuarterHeader';
+import HalfYearBody from './HalfYearBody';
 import { createKeyDownHandler } from '../../utils/uiUtil';
+import type { PanelSharedProps } from '../../interface';
 
-export type MonthPanelProps<DateType> = {
-  monthCellContentRender?: MonthCellRender<DateType>;
-  headerSelect?: any;
-} & PanelSharedProps<DateType>;
+export type HalfYearPanelProps<DateType> = { headerSelect?: any } & PanelSharedProps<DateType>;
 
-function MonthPanel<DateType>(props: MonthPanelProps<DateType>) {
+function HalfYearPanel<DateType>(props: HalfYearPanelProps<DateType>) {
   const {
     prefixCls,
     operationRef,
@@ -26,23 +22,20 @@ function MonthPanel<DateType>(props: MonthPanelProps<DateType>) {
     showSelectMask,
   } = props;
 
-  const panelPrefixCls = `${prefixCls}-month-panel`;
+  const panelPrefixCls = `${prefixCls}-halfYear-panel`;
 
   // ======================= Keyboard =======================
   operationRef.current = {
     onKeyDown: (event) =>
       createKeyDownHandler(event, {
         onLeftRight: (diff) => {
-          onSelect(generateConfig.addMonth(value || viewDate, diff), 'key');
+          onSelect(generateConfig.addMonth(value || viewDate, diff * 6), 'key');
         },
         onCtrlLeftRight: (diff) => {
           onSelect(generateConfig.addYear(value || viewDate, diff), 'key');
         },
         onUpDown: (diff) => {
-          onSelect(generateConfig.addMonth(value || viewDate, diff * MONTH_COL_COUNT), 'key');
-        },
-        onEnter: () => {
-          onPanelChange('date', value || viewDate);
+          onSelect(generateConfig.addYear(value || viewDate, diff), 'key');
         },
       }),
   };
@@ -53,6 +46,7 @@ function MonthPanel<DateType>(props: MonthPanelProps<DateType>) {
     onViewDateChange(newDate);
     onPanelChange(null, newDate, 'year', diff);
   };
+
   const [sourceModeCopy, setSourceModeCopy] = React.useState<any>(sourceMode);
   React.useEffect(() => {
     if (sourceMode && sourceMode === 'year') {
@@ -67,8 +61,9 @@ function MonthPanel<DateType>(props: MonthPanelProps<DateType>) {
   }, [diffValue]);
 
   return (
+    /* HalfYearHeader is the same with QuarterHeader */
     <div className={panelPrefixCls}>
-      <MonthHeader
+      <HalfYearHeader
         {...props}
         prefixCls={prefixCls}
         onPrevYear={() => {
@@ -82,12 +77,11 @@ function MonthPanel<DateType>(props: MonthPanelProps<DateType>) {
         }}
         sourceModeCopy={sourceModeCopy}
       />
-      <MonthBody<DateType>
+      <HalfYearBody<DateType>
         {...props}
         prefixCls={prefixCls}
         onSelect={(date) => {
           onSelect(date, 'mouse');
-          onPanelChange('date', date);
         }}
       />
       {headerSelect != undefined && showSelectMask ? (
@@ -107,4 +101,4 @@ function MonthPanel<DateType>(props: MonthPanelProps<DateType>) {
   );
 }
 
-export default MonthPanel;
+export default HalfYearPanel;

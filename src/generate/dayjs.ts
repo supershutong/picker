@@ -131,9 +131,15 @@ const generateConfig: GenerateConfig<Dayjs> = {
   setHour: (date, hour) => date.hour(hour),
   setMinute: (date, minute) => date.minute(minute),
   setSecond: (date, second) => date.second(second),
-
+  generateByDate: (date: Dayjs) => dayjs(date),
+  add: (date: Dayjs, value: number, type: any) => date.add(value, type),
+  subtract: (date: Dayjs, value: number, type: any) => date.subtract(value, type),
+  isValidType: (date: Dayjs) => dayjs.isDayjs(date),
+  clone: (date: Dayjs) => date.clone(),
+  startOf: (date: Dayjs, value: any) => date.startOf(value),
   // Compare
   isAfter: (date1, date2) => date1.isAfter(date2),
+  isSame: (date1, date2) => date1.isSame(date2),
   isValidate: (date) => date.isValid(),
 
   locale: {

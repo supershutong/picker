@@ -17,6 +17,7 @@ import {
   setMinutes,
   setSeconds,
   isAfter,
+  isSameMonth,
   isValid,
   getWeek,
   startOfWeek,
@@ -65,6 +66,7 @@ const generateConfig: GenerateConfig<Date> = {
 
   // Compare
   isAfter: (date1, date2) => isAfter(date1, date2),
+  isSame: (date1, date2) => isSameMonth(date1, date2),
   isValidate: date => isValid(date),
 
   locale: {

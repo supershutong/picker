@@ -6,22 +6,24 @@ import type { GenerateConfig } from '.';
 const generateConfig: GenerateConfig<Moment> = {
   // get
   getNow: () => moment(),
-  getFixedDate: string => moment(string, 'YYYY-MM-DD'),
-  getEndDate: date => {
+  getFixedDate: (string) => moment(string, 'YYYY-MM-DD'),
+  getEndDate: (date) => {
     const clone = date.clone();
     return clone.endOf('month');
   },
-  getWeekDay: date => {
+  getWeekDay: (date) => {
     const clone = date.clone().locale('en_US');
     return clone.weekday() + clone.localeData().firstDayOfWeek();
   },
-  getYear: date => date.year(),
-  getMonth: date => date.month(),
-  getDate: date => date.date(),
-  getHour: date => date.hour(),
-  getMinute: date => date.minute(),
-  getSecond: date => date.second(),
-
+  getYear: (date) => date.year(),
+  getMonth: (date) => date.month(),
+  getDate: (date) => date.date(),
+  getHour: (date) => date.hour(),
+  getMinute: (date) => date.minute(),
+  getSecond: (date) => date.second(),
+  generateByDate: (date) => moment(date),
+  add: (date, value: number, type: any) => date.add(value, type),
+  subtract: (date, value: number, type: any) => date.subtract(value, type),
   // set
   addYear: (date, diff) => {
     const clone = date.clone();
@@ -59,13 +61,17 @@ const generateConfig: GenerateConfig<Moment> = {
     const clone = date.clone();
     return clone.second(second);
   },
+  isValidType: (date: Moment) => moment.isMoment(date),
+  clone: (date: Moment) => date.clone(),
+  startOf: (date: Moment, value: any) => date.startOf(value),
 
   // Compare
   isAfter: (date1, date2) => date1.isAfter(date2),
-  isValidate: date => date.isValid(),
+  isSame: (date1, date2) => date1.isSame(date2),
+  isValidate: (date) => date.isValid(),
 
   locale: {
-    getWeekFirstDay: locale => {
+    getWeekFirstDay: (locale) => {
       const date = moment().locale(locale);
       return date.localeData().firstDayOfWeek();
     },
@@ -79,11 +85,11 @@ const generateConfig: GenerateConfig<Moment> = {
       const result = clone.locale(locale);
       return result.week();
     },
-    getShortWeekDays: locale => {
+    getShortWeekDays: (locale) => {
       const date = moment().locale(locale);
       return date.localeData().weekdaysMin();
     },
-    getShortMonths: locale => {
+    getShortMonths: (locale) => {
       const date = moment().locale(locale);
       return date.localeData().monthsShort();
     },

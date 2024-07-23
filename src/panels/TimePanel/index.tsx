@@ -7,6 +7,7 @@ import type { PanelSharedProps, DisabledTimes } from '../../interface';
 import { createKeyDownHandler } from '../../utils/uiUtil';
 
 export type SharedTimeProps<DateType> = {
+  fieldid?: string;
   format?: string;
   showNow?: boolean;
   showHour?: boolean;
@@ -44,6 +45,7 @@ function TimePanel<DateType>(props: TimePanelProps<DateType>) {
     format = 'HH:mm:ss',
     prefixCls,
     active,
+    fieldid,
     operationRef,
     showHour,
     showMinute,
@@ -85,6 +87,8 @@ function TimePanel<DateType>(props: TimePanelProps<DateType>) {
 
   return (
     <div
+      // @ts-ignore
+      fieldid={fieldid && `${fieldid}-time-panel`}
       className={classNames(panelPrefixCls, {
         [`${panelPrefixCls}-active`]: active,
       })}

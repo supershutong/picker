@@ -55,6 +55,12 @@ export type PickerSharedProps<DateType> = {
   /** Make input readOnly to avoid popup keyboard in mobile */
   inputReadOnly?: boolean;
   id?: string;
+  fieldid?: string;
+  nid?: string;
+  uikey?: string;
+  uitype?: string;
+  uititle?: string;
+  uirunmode?: string;
 
   // Value
   format?: string | CustomFormat<DateType> | (string | CustomFormat<DateType>)[];
@@ -73,6 +79,7 @@ export type PickerSharedProps<DateType> = {
   // Events
   onChange?: (value: DateType | null, dateString: string) => void;
   onOpenChange?: (open: boolean) => void;
+  onScroll?: React.ReactEventHandler<HTMLInputElement>;
   onFocus?: React.FocusEventHandler<HTMLInputElement>;
   onBlur?: React.FocusEventHandler<HTMLInputElement>;
   onMouseDown?: React.MouseEventHandler<HTMLDivElement>;
@@ -133,6 +140,12 @@ function InnerPicker<DateType>(props: PickerProps<DateType>) {
   const {
     prefixCls = 'rc-picker',
     id,
+    fieldid,
+    nid,
+    uikey,
+    uitype,
+    uititle,
+    uirunmode,
     tabIndex,
     style,
     className,
@@ -166,6 +179,7 @@ function InnerPicker<DateType>(props: PickerProps<DateType>) {
     onOpenChange,
     onFocus,
     onBlur,
+    onScroll,
     onMouseDown,
     onMouseUp,
     onMouseEnter,
@@ -398,6 +412,7 @@ function InnerPicker<DateType>(props: PickerProps<DateType>) {
     <PickerPanel<DateType>
       {...panelProps}
       generateConfig={generateConfig}
+      fieldid={fieldid}
       className={classNames({
         [`${prefixCls}-panel-focused`]: !typing,
       })}
@@ -424,7 +439,17 @@ function InnerPicker<DateType>(props: PickerProps<DateType>) {
   const panel = (
     <div
       className={`${prefixCls}-panel-container`}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+      onMouseEnter={(e) => {
+        e.stopPropagation();
+      }}
+      onMouseLeave={(e) => {
+        e.stopPropagation();
+      }}
       onMouseDown={(e) => {
+        e.stopPropagation();
         e.preventDefault();
       }}
     >
@@ -442,11 +467,11 @@ function InnerPicker<DateType>(props: PickerProps<DateType>) {
     clearNode = (
       <span
         onMouseDown={(e) => {
-          e.preventDefault();
+          // e.preventDefault();
           e.stopPropagation();
         }}
         onMouseUp={(e) => {
-          e.preventDefault();
+          // e.preventDefault();
           e.stopPropagation();
           triggerChange(null);
           triggerOpen(false);
@@ -468,6 +493,7 @@ function InnerPicker<DateType>(props: PickerProps<DateType>) {
     onChange: (e) => {
       triggerTextChange(e.target.value);
     },
+    onScroll,
     autoFocus,
     placeholder,
     ref: inputRef,
@@ -506,6 +532,7 @@ function InnerPicker<DateType>(props: PickerProps<DateType>) {
     <PanelContext.Provider
       value={{
         operationRef,
+        fieldid,
         hideHeader: picker === 'time',
         panelRef: panelDivRef,
         onSelect: onContextSelect,
@@ -529,6 +556,13 @@ function InnerPicker<DateType>(props: PickerProps<DateType>) {
       >
         <div
           ref={containerRef}
+          // @ts-ignore
+          fieldid={fieldid}
+          nid={nid}
+          uikey={uikey}
+          uitype={uitype}
+          uititle={uititle}
+          uirunmode={uirunmode}
           className={classNames(prefixCls, className, {
             [`${prefixCls}-disabled`]: disabled,
             [`${prefixCls}-focused`]: focused,

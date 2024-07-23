@@ -14,10 +14,15 @@ export type DatePanelProps<DateType> = {
   active?: boolean;
   dateRender?: DateRender<DateType>;
 
+  id?: string;
+  fieldid?: string;
+
   // Used for week panel
   panelName?: string;
   keyboardConfig?: KeyboardConfig;
-} & PanelSharedProps<DateType> & DateBodyPassProps<DateType>;
+  headerSelect?: any;
+} & PanelSharedProps<DateType> &
+  DateBodyPassProps<DateType>;
 
 function DatePanel<DateType>(props: DatePanelProps<DateType>) {
   const {
@@ -29,26 +34,32 @@ function DatePanel<DateType>(props: DatePanelProps<DateType>) {
     generateConfig,
     value,
     viewDate,
+    id,
+    fieldid,
     onViewDateChange,
     onPanelChange,
     onSelect,
+    sourceMode,
+    diffValue,
+    headerSelect,
+    showSelectMask,
   } = props;
   const panelPrefixCls = `${prefixCls}-${panelName}-panel`;
 
   // ======================= Keyboard =======================
   operationRef.current = {
-    onKeyDown: event =>
+    onKeyDown: (event) =>
       createKeyDownHandler(event, {
-        onLeftRight: diff => {
+        onLeftRight: (diff) => {
           onSelect(generateConfig.addDate(value || viewDate, diff), 'key');
         },
-        onCtrlLeftRight: diff => {
+        onCtrlLeftRight: (diff) => {
           onSelect(generateConfig.addYear(value || viewDate, diff), 'key');
         },
-        onUpDown: diff => {
+        onUpDown: (diff) => {
           onSelect(generateConfig.addDate(value || viewDate, diff * WEEK_DAY_COUNT), 'key');
         },
-        onPageUpDown: diff => {
+        onPageUpDown: (diff) => {
           onSelect(generateConfig.addMonth(value || viewDate, diff), 'key');
         },
         ...keyboardConfig,
@@ -59,16 +70,40 @@ function DatePanel<DateType>(props: DatePanelProps<DateType>) {
   const onYearChange = (diff: number) => {
     const newDate = generateConfig.addYear(viewDate, diff);
     onViewDateChange(newDate);
-    onPanelChange(null, newDate);
+    onPanelChange(null, newDate, 'year', diff);
   };
   const onMonthChange = (diff: number) => {
     const newDate = generateConfig.addMonth(viewDate, diff);
     onViewDateChange(newDate);
-    onPanelChange(null, newDate);
+    onPanelChange(null, newDate, 'month', diff);
   };
+
+  const [sourceModeCopy, setSourceModeCopy] = React.useState<any>(sourceMode);
+  React.useEffect(() => {
+    if (sourceMode && sourceMode === 'year') {
+      setSourceModeCopy('decade1');
+    }
+  }, [sourceMode]);
+  const onYearMonthChange = () => {
+    const currentDate = generateConfig.addYear(
+      generateConfig.generateByDate(viewDate),
+      diffValue[0],
+    );
+    const newDate = generateConfig.addMonth(currentDate as DateType, diffValue[1]);
+    onViewDateChange(newDate);
+  };
+
+  React.useEffect(() => {
+    if (diffValue) {
+      onYearMonthChange();
+    }
+  }, [diffValue]);
 
   return (
     <div
+      id={id ? id + '_panel' : ''}
+      // @ts-ignore
+      fieldid={fieldid && `${fieldid}_panel`}
       className={classNames(panelPrefixCls, {
         [`${panelPrefixCls}-active`]: active,
       })}
@@ -97,15 +132,32 @@ function DatePanel<DateType>(props: DatePanelProps<DateType>) {
         onYearClick={() => {
           onPanelChange('year', viewDate);
         }}
+        onCurrent={() => {
+          onViewDateChange(generateConfig.getNow());
+        }}
+        sourceModeCopy={sourceModeCopy}
       />
       <DateBody
         {...props}
-        onSelect={date => onSelect(date, 'mouse')}
+        onSelect={(date) => onSelect(date, 'mouse')}
         prefixCls={prefixCls}
         value={value}
         viewDate={viewDate}
         rowCount={DATE_ROW_COUNT}
       />
+      {headerSelect !== undefined && showSelectMask ? (
+        <div
+          style={{
+            opacity: '0.5',
+            width: '100%',
+            height: '100%',
+            background: '#fff',
+            position: 'absolute',
+            left: 0,
+            zIndex: '100',
+          }}
+        />
+      ) : null}
     </div>
   );
 }

@@ -28,7 +28,7 @@ import type { GenerateConfig } from './generate';
 import type { PickerPanelProps } from '.';
 import RangeContext from './RangeContext';
 import useRangeDisabled from './hooks/useRangeDisabled';
-import getExtraFooter from './utils/getExtraFooter';
+import { getExtraFooter, getExtraHeader } from './utils/getExtraFooter';
 import getRanges from './utils/getRanges';
 import useRangeViewDates from './hooks/useRangeViewDates';
 import type { DateRender } from './panels/DatePanel/DateBody';
@@ -81,6 +81,8 @@ export type RangeDateRender<DateType> = (
 
 export type RangePickerSharedProps<DateType> = {
   id?: string;
+  fieldid?: string;
+  linkedPanels?: boolean;
   value?: RangeValue<DateType>;
   defaultValue?: RangeValue<DateType>;
   defaultPickerValue?: [DateType, DateType];
@@ -94,14 +96,20 @@ export type RangePickerSharedProps<DateType> = {
   separator?: React.ReactNode;
   allowEmpty?: [boolean, boolean];
   mode?: [PanelMode, PanelMode];
-  onChange?: (values: RangeValue<DateType>, formatString: [string, string]) => void;
+  onChange?: (values: RangeValue<DateType>, formatString: [string, string], label?: string) => void;
   onCalendarChange?: (
     values: RangeValue<DateType>,
     formatString: [string, string],
     info: RangeInfo,
   ) => void;
-  onPanelChange?: (values: RangeValue<DateType>, modes: [PanelMode, PanelMode]) => void;
-  onFocus?: React.FocusEventHandler<HTMLInputElement>;
+  onPanelChange?: (
+    values: RangeValue<DateType>,
+    modes: [PanelMode, PanelMode],
+    type?: 'year' | 'month',
+    diff?: number,
+  ) => void;
+  onScroll?: React.ReactEventHandler<HTMLInputElement>;
+  // onFocus?: React.FocusEventHandler<HTMLInputElement>;
   onBlur?: React.FocusEventHandler<HTMLInputElement>;
   onMouseDown?: React.MouseEventHandler<HTMLDivElement>;
   onMouseUp?: React.MouseEventHandler<HTMLDivElement>;
@@ -109,12 +117,20 @@ export type RangePickerSharedProps<DateType> = {
   onMouseLeave?: React.MouseEventHandler<HTMLDivElement>;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
   onOk?: (dates: RangeValue<DateType>) => void;
+  onPresetChange?: (label: string, values: RangeValue<DateType>) => void;
+  activePresetLabel?: string;
   direction?: 'ltr' | 'rtl';
   autoComplete?: string;
   /** @private Internal control of active picker. Do not use since it's private usage */
   activePickerIndex?: 0 | 1;
   dateRender?: RangeDateRender<DateType>;
   panelRender?: (originPanel: React.ReactNode) => React.ReactNode;
+  diffValue?: [number, number];
+  headerSelectLeft?: any;
+  headerSelectRight?: any;
+  showSelectMask?: boolean;
+  onInputFocus?: any;
+  activeSelectPanel: 'left' | 'right' | 'none';
 };
 
 type OmitPickerProps<Props> = Omit<
@@ -166,12 +182,21 @@ type OmitType<DateType> = Omit<RangePickerBaseProps<DateType>, 'picker'> &
 
 type MergedRangePickerProps<DateType> = {
   picker?: PickerMode;
+  headerSelectRight: any;
+  headerSelectLeft: any;
+  onInputFocus?: any;
 } & OmitType<DateType>;
 
 function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
   const {
     prefixCls = 'rc-picker',
     id,
+    fieldid,
+    nid,
+    uikey,
+    uitype,
+    uititle,
+    uirunmode,
     style,
     className,
     popupStyle,
@@ -192,6 +217,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     value,
     defaultValue,
     defaultPickerValue,
+    linkedPanels = true,
     open,
     defaultOpen,
     disabledDate,
@@ -206,11 +232,13 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     pickerRef,
     inputReadOnly,
     mode,
+    renderExtraHeader,
     renderExtraFooter,
     onChange,
     onOpenChange,
     onPanelChange,
     onCalendarChange,
+    onScroll,
     onFocus,
     onBlur,
     onMouseDown,
@@ -220,11 +248,17 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     onClick,
     onOk,
     onKeyDown,
+    onPresetChange,
     components,
     order,
     direction,
+    activePresetLabel,
     activePickerIndex,
     autoComplete = 'off',
+    headerSelectRight,
+    headerSelectLeft,
+    onInputFocus,
+    activeSelectPanel,
   } = props as MergedRangePickerProps<DateType>;
 
   const needConfirmButton: boolean = (picker === 'date' && !!showTime) || picker === 'time';
@@ -274,15 +308,6 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       picker === 'time' && !order ? values : reorderValues(values, generateConfig),
   });
 
-  // =========================== View Date ===========================
-  // Config view panel
-  const [getViewDate, setViewDate] = useRangeViewDates({
-    values: mergedValue,
-    picker,
-    defaultDates: defaultPickerValue,
-    generateConfig,
-  });
-
   // ========================= Select Values =========================
   const [selectedValue, setSelectedValue] = useMergedState(mergedValue, {
     postState: (values) => {
@@ -302,6 +327,15 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     },
   });
 
+  // =========================== View Date ===========================
+  // Config view panel
+  const [getViewDate, setViewDate] = useRangeViewDates({
+    values: selectedValue || mergedValue,
+    picker,
+    defaultDates: defaultPickerValue,
+    generateConfig,
+  });
+
   // ============================= Modes =============================
   const [mergedModes, setInnerModes] = useMergedState<[PanelMode, PanelMode]>([picker, picker], {
     value: mode,
@@ -311,11 +345,16 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     setInnerModes([picker, picker]);
   }, [picker]);
 
-  const triggerModesChange = (modes: [PanelMode, PanelMode], values: RangeValue<DateType>) => {
+  const triggerModesChange = (
+    modes: [PanelMode, PanelMode],
+    values: RangeValue<DateType>,
+    type?: 'year' | 'month',
+    diff?: number,
+  ) => {
     setInnerModes(modes);
 
     if (onPanelChange) {
-      onPanelChange(values, modes);
+      onPanelChange(values, modes, type, diff);
     }
   };
 
@@ -333,12 +372,23 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     openRecordsRef.current[0],
   );
 
+  const [leftDate, setLeftDate] = useState(getViewDate(0));
+  const [rightDate, setRightDate] = useState(
+    getClosingViewDate(getViewDate(1), picker, generateConfig),
+  );
+
   // ============================= Open ==============================
   const [mergedOpen, triggerInnerOpen] = useMergedState(false, {
     value: open,
     defaultValue: defaultOpen,
     postState: (postOpen) => (mergedDisabled[mergedActivePickerIndex] ? false : postOpen),
     onChange: (newOpen) => {
+      if (newOpen) {
+        setInnerModes([picker, picker]);
+        setLeftDate(getViewDate(0));
+        setRightDate(getClosingViewDate(getViewDate(1), picker, generateConfig));
+      }
+
       if (onOpenChange) {
         onOpenChange(newOpen);
       }
@@ -401,7 +451,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     }, 0);
   }
 
-  function triggerChange(newValue: RangeValue<DateType>, sourceIndex: 0 | 1) {
+  function triggerChange(newValue: RangeValue<DateType>, sourceIndex: 0 | 1, label?: string) {
     let values = newValue;
     let startValue = getValue(values, 0);
     let endValue = getValue(values, 1);
@@ -411,10 +461,14 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       if (
         // WeekPicker only compare week
         (picker === 'week' && !isSameWeek(generateConfig, locale.locale, startValue, endValue)) ||
-        // QuotaPicker only compare week
+        // HalfYearPicker only compare halfYear
+        (picker === 'halfYear' &&
+          !isSameQuarter(generateConfig, startValue, endValue, 'halfYear')) ||
+        // QuotaPicker only compare quarter
         (picker === 'quarter' && !isSameQuarter(generateConfig, startValue, endValue)) ||
         // Other non-TimePicker compare date
         (picker !== 'week' &&
+          picker !== 'halfYear' &&
           picker !== 'quarter' &&
           picker !== 'time' &&
           !isSameDate(generateConfig, startValue, endValue))
@@ -470,7 +524,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
         (!isEqual(generateConfig, getValue(mergedValue, 0), startValue) ||
           !isEqual(generateConfig, getValue(mergedValue, 1), endValue))
       ) {
-        onChange(values, [startStr, endStr]);
+        onChange(values, [startStr, endStr], label || '');
       }
     }
 
@@ -541,6 +595,12 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     const disabledFunc = index === 0 ? disabledStartDate : disabledEndDate;
 
     if (inputDate && !disabledFunc(inputDate)) {
+      if (index === 0) {
+        // fix: 修复面板未切换到input输入日期问题
+        setLeftDate(inputDate);
+      } else {
+        setRightDate(inputDate);
+      }
       setSelectedValue(updateValues(selectedValue, inputDate, index));
       setViewDate(inputDate, index);
     }
@@ -608,6 +668,17 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       ),
     onFocus: (e: React.FocusEvent<HTMLInputElement>) => {
       setMergedActivePickerIndex(index);
+
+      const startValue = startHoverValue || startText;
+      const endValue = endHoverValue || endText;
+      if (onInputFocus) {
+        onInputFocus(
+          mergedActivePickerIndex,
+          mergedActivePickerIndex === 0 ? startValue : endValue,
+          e,
+        );
+      }
+
       if (onFocus) {
         onFocus(e);
       }
@@ -772,8 +843,10 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
 
     return {
       label,
+      activePresetLabel,
       onClick: () => {
-        triggerChange(newValues, null);
+        onPresetChange(label, newValues);
+        triggerChange(newValues, null, label);
         triggerOpen(false, mergedActivePickerIndex);
       },
       onMouseEnter: () => {
@@ -788,7 +861,9 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
   // ============================= Panel =============================
   function renderPanel(
     panelPosition: 'left' | 'right' | false = false,
-    panelProps: Partial<PickerPanelProps<DateType>> = {},
+    panelProps: Partial<
+      PickerPanelProps<DateType> & { headerSelectLeft: any; headerSelectRight: any }
+    > = {},
   ) {
     let panelHoverRangedValue: RangeValue<DateType> = null;
     if (
@@ -818,10 +893,17 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
           range: mergedActivePickerIndex ? 'end' : 'start',
         });
     }
+    let headerSelect = null;
+    if (panelPosition === 'left') {
+      headerSelect = panelProps.headerSelectLeft;
+    } else {
+      headerSelect = panelProps.headerSelectRight;
+    }
 
     return (
       <RangeContext.Provider
         value={{
+          fieldid,
           inRange: true,
           panelPosition,
           rangedValue: rangeHoverValue || selectedValue,
@@ -831,6 +913,21 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
         <PickerPanel<DateType>
           {...(props as any)}
           {...panelProps}
+          headerSelect={
+            showTime
+              ? mergedActivePickerIndex === 0
+                ? headerSelectLeft
+                : headerSelectRight
+              : headerSelect
+          }
+          fieldid={
+            fieldid && panelPosition
+              ? fieldid + '_' + panelPosition
+              : panelPosition === false
+              ? fieldid
+              : undefined
+          }
+          renderExtraHeader={null}
           dateRender={panelDateRender}
           showTime={panelShowTime}
           mode={mergedModes[mergedActivePickerIndex]}
@@ -844,14 +941,16 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
             }
             return false;
           }}
+          linkedPanels={linkedPanels}
           className={classNames({
             [`${prefixCls}-panel-focused`]:
               mergedActivePickerIndex === 0 ? !startTyping : !endTyping,
+            [`${prefixCls}-panel-unlinked`]: !linkedPanels,
           })}
           value={getValue(selectedValue, mergedActivePickerIndex)}
           locale={locale}
           tabIndex={-1}
-          onPanelChange={(date, newMode) => {
+          onPanelChange={(date, newMode, type, diff) => {
             // clear hover value when panel change
             if (mergedActivePickerIndex === 0) {
               onStartLeave(true);
@@ -862,6 +961,8 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
             triggerModesChange(
               updateValues(mergedModes, newMode, mergedActivePickerIndex),
               updateValues(selectedValue, date, mergedActivePickerIndex),
+              type,
+              diff,
             );
 
             let viewDate = date;
@@ -916,6 +1017,11 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
 
   function renderPanels() {
     let panels: React.ReactNode;
+    const extraHeader = getExtraHeader(
+      prefixCls,
+      mergedModes[mergedActivePickerIndex],
+      renderExtraHeader,
+    );
     const extraNode = getExtraFooter(
       prefixCls,
       mergedModes[mergedActivePickerIndex],
@@ -924,6 +1030,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
 
     const rangesNode = getRanges({
       prefixCls,
+      fieldid,
       components,
       needConfirmButton,
       okDisabled:
@@ -931,6 +1038,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
         (disabledDate && disabledDate(selectedValue[mergedActivePickerIndex])),
       locale,
       rangeList,
+      activePresetLabel,
       onOk: () => {
         if (getValue(selectedValue, mergedActivePickerIndex)) {
           // triggerChangeOld(selectedValue);
@@ -947,21 +1055,82 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       const nextViewDate = getClosingViewDate(viewDate, picker, generateConfig);
       const currentMode = mergedModes[mergedActivePickerIndex];
 
+      const modeMap: Record<string, string> = {
+        // 不同mode要格式化为不同面板开始日期
+        date: 'M',
+        week: 'M',
+        month: 'y',
+        quarter: 'y',
+        halfYear: 'y',
+        year: 'y',
+        decade: 'y',
+      };
+
       const showDoublePanel = currentMode === picker;
       const leftPanel = renderPanel(showDoublePanel ? 'left' : false, {
-        pickerValue: viewDate,
+        pickerValue: !linkedPanels ? leftDate : viewDate,
         onPickerValueChange: (newViewDate) => {
+          // 左右面板分离
+          if (!linkedPanels && ['left', 'none'].includes(activeSelectPanel)) {
+            if (
+              /** 右翻页 */
+              !generateConfig.isAfter(viewDate, newViewDate) &&
+              (generateConfig.isSame(
+                /** 左右面板要取月初，避免用户值日期不同导致月份isSame判断错误 */
+                /** 左面板右翻页后等于右面板 */
+                generateConfig.startOf(generateConfig.clone(newViewDate), modeMap[currentMode]),
+                generateConfig.startOf(generateConfig.clone(rightDate), modeMap[currentMode]),
+              ) ||
+                generateConfig.isAfter(
+                  /** 左面板右翻页后大于右面板 */
+                  generateConfig.startOf(generateConfig.clone(newViewDate), modeMap[currentMode]),
+                  generateConfig.startOf(generateConfig.clone(rightDate), modeMap[currentMode]),
+                ))
+            ) {
+              // 左面板右翻页，且左面板翻页后等于右面板，则右面板也需要 +1
+              setRightDate(getClosingViewDate(newViewDate, picker, generateConfig));
+            }
+            // 左面板一直可翻页
+            setLeftDate(newViewDate);
+          }
+          // 左右面板关联
           setViewDate(newViewDate, mergedActivePickerIndex);
         },
+        headerSelectLeft,
       });
       const rightPanel = renderPanel('right', {
-        pickerValue: nextViewDate,
+        pickerValue: !linkedPanels ? rightDate : nextViewDate,
         onPickerValueChange: (newViewDate) => {
+          // 左右面板分离
+          if (!linkedPanels && ['right', 'none'].includes(activeSelectPanel)) {
+            if (
+              /** 左翻页 */
+              generateConfig.isAfter(nextViewDate, newViewDate) &&
+              (generateConfig.isSame(
+                /** 左右面板要取月初，避免用户值日期不同导致月份isSame判断错误 */
+                /** 右面板左翻页后等于左面板 */
+                generateConfig.startOf(generateConfig.clone(newViewDate), modeMap[currentMode]),
+                generateConfig.startOf(generateConfig.clone(leftDate), modeMap[currentMode]),
+              ) ||
+                generateConfig.isAfter(
+                  /** 右面板左翻页后小于左面板 */
+                  generateConfig.startOf(generateConfig.clone(leftDate), modeMap[currentMode]),
+                  generateConfig.startOf(generateConfig.clone(newViewDate), modeMap[currentMode]),
+                ))
+            ) {
+              // 右面板左翻页，且右面板翻页后等于左面板，则左面板也需要 -1
+              setLeftDate(getClosingViewDate(newViewDate, picker, generateConfig, -1));
+            }
+            // 左面板一直可翻页
+            setRightDate(newViewDate);
+          }
+
           setViewDate(
             getClosingViewDate(newViewDate, picker, generateConfig, -1),
             mergedActivePickerIndex,
           );
         },
+        headerSelectRight,
       });
 
       if (direction === 'rtl') {
@@ -985,6 +1154,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
 
     let mergedNodes: React.ReactNode = (
       <>
+        {extraHeader}
         <div className={`${prefixCls}-panels`}>{panels}</div>
         {(extraNode || rangesNode) && (
           <div className={`${prefixCls}-footer`}>
@@ -1039,11 +1209,11 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     clearNode = (
       <span
         onMouseDown={(e) => {
-          e.preventDefault();
+          // e.preventDefault();
           e.stopPropagation();
         }}
         onMouseUp={(e) => {
-          e.preventDefault();
+          // e.preventDefault();
           e.stopPropagation();
           let values = mergedValue;
 
@@ -1065,6 +1235,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
   }
 
   const inputSharedProps = {
+    onScroll,
     size: getInputSize(picker, formatList[0], generateConfig),
   };
 
@@ -1102,6 +1273,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
     <PanelContext.Provider
       value={{
         operationRef,
+        fieldid,
         hideHeader: picker === 'time',
         onDateMouseEnter,
         onDateMouseLeave,
@@ -1124,6 +1296,13 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
       >
         <div
           ref={containerRef}
+          // @ts-ignore
+          fieldid={fieldid}
+          nid={nid}
+          uikey={uikey}
+          uitype={uitype}
+          uititle={uititle}
+          uirunmode={uirunmode}
           className={classNames(prefixCls, `${prefixCls}-range`, className, {
             [`${prefixCls}-disabled`]: mergedDisabled[0] && mergedDisabled[1],
             [`${prefixCls}-focused`]: mergedActivePickerIndex === 0 ? startFocused : endFocused,
@@ -1155,6 +1334,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
               autoFocus={autoFocus}
               placeholder={getValue(placeholder, 0) || ''}
               ref={startInputRef}
+              title={startText}
               {...startInputProps}
               {...inputSharedProps}
               autoComplete={autoComplete}
@@ -1179,6 +1359,7 @@ function InnerRangePicker<DateType>(props: RangePickerProps<DateType>) {
               }}
               placeholder={getValue(placeholder, 1) || ''}
               ref={endInputRef}
+              title={endText}
               {...endInputProps}
               {...inputSharedProps}
               autoComplete={autoComplete}
